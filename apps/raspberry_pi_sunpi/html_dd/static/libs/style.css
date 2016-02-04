@@ -1,0 +1,42 @@
+/**
+ * CSS extension of jQuery Mobile
+ */
+
+*:not(input) {
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.ui-content {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.ui-listview .ui-li-aside {
+  top: 5px;
+}
+
+.ui-li-divider .ui-li-aside {
+  top: -2px;
+}
+
+.hidden {
+  display: none;
+}
+
+.errors {
+  background: linear-gradient(#FFFADF, #FFF3A5) repeat scroll 0 0 #FFF9DF;
+  border: 1px solid #F7C942;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  display: none;
+}
+
+.warnings {
+  display: none;
+}
