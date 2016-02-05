@@ -5,7 +5,7 @@
 function queryVoltage(input) {
   jNabto.request("ina_voltage.json?", function(err, data) {
     if (!err) {
-      input.val("Voltage: " + data.voltage_v/10000+"V").button("refresh");
+      input.val("Voltage: " + (data.voltage_v/10000).toFixed(2) + "V").button("refresh");
     }
   });
 }
@@ -13,7 +13,16 @@ function queryVoltage(input) {
 function queryPower(input) {
   jNabto.request("ina_power.json?", function(err, data) {
     if (!err) {
-      input.val("Power: " + data.power_w/1000+"W").button("refresh");
+
+      temp_power = data.power_w/10000
+
+      // Check if negative
+      if (temp_power > 100)
+      {
+        temp_power = temp_power - 200
+      }
+
+      input.val("Power: " + temp_power.toFixed(2) + "W").button("refresh");
     }
   });
 }
@@ -21,7 +30,7 @@ function queryPower(input) {
 function queryTemperature(input) {
   jNabto.request("rpi_temperature.json?", function(err, data) {
     if (!err) {
-      input.val("Temperature: " + data.temperature_c+"C").button("refresh");
+      input.val("Temperature: " + (data.temperature_c/10000).toFixed(2) + "C").button("refresh");
     }
   });
 }

@@ -105,6 +105,8 @@ application_event_result demo_application(application_request* request, buffer_r
             // Get voltage from INA219
             getINA219_data(&voltage, &power);
 
+            printf("Read voltage=%f\n", voltage);
+
             // Write back data
             if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
 	       
@@ -124,16 +126,37 @@ application_event_result demo_application(application_request* request, buffer_r
             // Get power from INA219
             getINA219_data(&voltage, &power);
 
+            printf("Read power=%f\n", power);
+
+            // Prepare for negative numbers. This will be converted back in the html_dd app.js file
+            if (power<0)
+            {
+                power = power + 200;
+            }
+
             // Write back data
             if (!buffer_write_uint32(write_buffer, power*10000)) return AER_REQ_RSP_TOO_LARGE;
             
             return AER_REQ_RESPONSE_READY;
         }
         case 5: {
+            /*
+            <query name="rpi_temperature.json" description="Read temperature status" id="5">
+            <request>
+            </request>
+            <response format="json">
+            <parameter name="temperature_c" type="uint32"/>
+            </response>
+            </query>
+            */
+
+            // Get internal temperature of the RPi
             getRPi_temp(&temperature);
 
+            printf("Read temperature=%f\n", temperature);
+
             // Write back data
-            if (!buffer_write_uint32(write_buffer, temperature)) return AER_REQ_RSP_TOO_LARGE;
+            if (!buffer_write_uint32(write_buffer, temperature*10000)) return AER_REQ_RSP_TOO_LARGE;
             
             return AER_REQ_RESPONSE_READY;
         }
@@ -141,7 +164,7 @@ application_event_result demo_application(application_request* request, buffer_r
     return AER_REQ_INV_QUERY_ID;
 }
 
-// Set virtual light and return state,
+// Set GPIO pin and return state,
 uint8_t setLight(uint8_t id, uint8_t onOff) {
     theLight = onOff;
     if (id == 1) {
@@ -243,25 +266,11 @@ void getINA219_data(float* voltage, float* power){
 }
 
 
-char* subString (const char* input, int offset, int len, char* dest)
-{
-    int input_len = strlen (input);
-
-    if (offset + len > input_len)
-    {
-        return NULL;
-    }
-
-    strncpy (dest, input + offset, len);
-    return dest;
-}
-
 // Get RPi temperature
 void getRPi_temp(float* temperature){
 
     FILE *fp;
     char path[1035];
-    char dest[80];
 
     /* Open the command for reading. */
     fp = popen("/opt/vc/bin/vcgencmd measure_temp", "r");
@@ -276,25 +285,30 @@ void getRPi_temp(float* temperature){
     while (fgets(path, sizeof(path)-1, fp) != NULL) {
         k = k + 1;
         if (k==1){
-            // Can get temp fine but not convert to int. Most investigate
-            printf("%s\n", path);
-            /*
-            if (subString(path, 5, 7, dest))
-            {
-                printf("%s\n", dest);
+            // Working method to extract 39.5 from temp=39.5'C
+            int j = 0;
+            char *str = path, *p = str;
+            while (*p) { // While there are more characters to process...
+                if (isdigit(*p)) { // Upon finding a digit, ...
+                    long val = strtol(p, &p, 10); // Read a number, ...
+                    j = j + 1;
+                    if (j == 1)
+                    {
+                        *temperature = val;
+                    }
+                    else if (j == 2)
+                    {
+                        *temperature = *temperature + 0.1*val;
+                    }
+                } else { // Otherwise, move on to the next character.
+                    p++;
+                }
             }
-            */
-            //strncpy(extra, path)
-            //*temperature = path;//atof(strncpy(path), 5, -2);
         }
     }
 
     /* close */
     pclose(fp);
-
-    //Print results
-    //printf("Voltage=%f\n", *voltage);
-    //printf("Power=%f\n", *power);
 }
 
 /** Asynchronous event model - queue the request for later response */
