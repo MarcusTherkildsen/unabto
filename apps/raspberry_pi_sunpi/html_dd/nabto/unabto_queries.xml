@@ -21,5 +21,22 @@
       <parameter name="light_state" type="uint8"/>
     </response>
   </query>
+  
+  <query name="ina_voltage.json" description="Read voltage status" id="3">
+    <request>
+    </request>
+    <response format="json">
+      <parameter name="voltage_v" type="uint32"/>
+    </response>
+  </query>
+  
+  <query name="test_func.json" description="Read voltage status" id="4">
+    <request>
+    </request>
+    <response format="json">
+      <parameter name="voltage_v" type="uint32"/>
+    </response>
+  </query>
 
+	
 </unabto_queries>

@@ -19,7 +19,7 @@
   <div data-role="page">
     <div data-role="header">
       <a data-role="button" id="discover-button" href="//self/discover" data-icon="home" data-iconpos="notext">Discover</a>
-      <h1>Testing custom html</h1>
+      <h1>Welcome to the SunPi control center</h1>
     </div>
     <div data-role="content">
       <div id="container">
@@ -69,10 +69,18 @@
             </select>
           </div>
         </li>
-			
+		
+		<ul data-role="listview" data-inset="true" data-divider-theme="a">
+		<li data-role="list-divider">
+  		<h2>Data from SunPi</h2>
+		</li>
+		<li>
+  		<input type="button" id="voltage_update" data-icon="refresh" value="Read Voltage"/>
+		</li>
+		</ul>
+		
       </ul>
-      <h4>Welcome to the SunPi control center.</h4>
-      <h4>The worlds most complicated way of activating a RGB led.</h4>
+      <h4>Control a RGB led as well as a single relay or retrieve the voltage of the SunPi battery.</h4>
     </div>
     <div class="errors ui-body"></div>
   </div>

@@ -1,6 +1,22 @@
 /*!
  *  JavaScript application using Nabto communication.
  */
+ 
+function queryVoltage(input) {
+  jNabto.request("ina_voltage.json?", function(err, data) {
+    if (!err) {
+      input.val("Voltage: " + data.voltage_v/10000+"V").button("refresh");
+    }
+  });
+}
+
+function queryPower(input) {
+  jNabto.request("test_func.json?", function(err, data) {
+    if (!err) {
+      input.val("Voltage: " + data.voltage_v+"V").button("refresh");
+    }
+  });
+}
 
 // Set the light state if no errors are returned
 function setLight_r(err, data) {
@@ -32,9 +48,18 @@ function setLight_arb(err, data) {
 }
 
 $(document).on("pageinit", function() {
+  
   // Initialize Nabto JavaScript library
   jNabto.init({
     debug: false
+  });
+  
+  $("#voltage_update").click(function() {
+    queryVoltage($(this));
+  });
+  
+  $("#try_update").click(function() {
+    queryPower($(this));
   });
   
   /* The light_id correspond to the four pins */
