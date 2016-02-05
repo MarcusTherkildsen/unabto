@@ -22,8 +22,7 @@ function queryPower(input) {
 function setLight_r(err, data) {
   if (!err) {
     $("#rgb-r").val(data.light_state?"on":"off").slider("refresh");
-    $("#light-div-on").stop().fadeTo(1000, data.light_state);
-	
+    $("#light-div-on").stop().fadeTo(1000, data.light_state);	
   }
 }
 
@@ -70,23 +69,23 @@ $(document).on("pageinit", function() {
   
   // Bind change event to the four switches  
   $("#rgb-r").change(function() {
-  var state = $(this).val() === "off"?0:1;
-  jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight_r);
+    var state = $(this).val() === "off"?0:1;
+    jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight_r);
   });
   
   $("#rgb-g").change(function() {
-  var state = $(this).val() === "off"?0:1;
-  jNabto.request("light_write.json?light_id=2&light_on=" + state, setLight_g);
+    var state = $(this).val() === "off"?0:1;
+    jNabto.request("light_write.json?light_id=2&light_on=" + state, setLight_g);
   });
   
   $("#rgb-b").change(function() {
-  var state = $(this).val() === "off"?0:1;
-  jNabto.request("light_write.json?light_id=3&light_on=" + state, setLight_b);
+    var state = $(this).val() === "off"?0:1;
+    jNabto.request("light_write.json?light_id=3&light_on=" + state, setLight_b);
   });
   
   $("#arb").change(function() {
-  var state = $(this).val() === "off"?0:1;
-  jNabto.request("light_write.json?light_id=12&light_on=" + state, setLight_arb);
+    var state = $(this).val() === "off"?0:1;
+    jNabto.request("light_write.json?light_id=12&light_on=" + state, setLight_arb);
   });
   
 });

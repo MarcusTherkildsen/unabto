@@ -27,7 +27,7 @@ void getINA219_data(float* voltage, float* power);
 application_event_result demo_application(application_request* request, buffer_read_t* read_buffer, buffer_write_t* write_buffer) {
     switch(request->queryId) {
         case 1: {
-            //  <query name="light_write.json" description="Turn light on and off" id="1">
+		   	//  <query name="light_write.json" description="Turn light on and off" id="1">
             //    <request>
             //      <parameter name="light_id" type="uint8"/>
             //      <parameter name="light_on" type="uint8"/>
@@ -85,6 +85,27 @@ application_event_result demo_application(application_request* request, buffer_r
 
             return AER_REQ_RESPONSE_READY;
         }
+
+
+	    case 3: {
+            /*
+            <query name="ina_voltage.json" description="Read voltage status" id="3">
+            <request>
+            </request>
+            <response format="json">
+            <parameter name="voltage_v" type="uint32"/>
+            </response>
+            </query>
+	        */
+
+	        // Get voltage from INA219
+	        getINA219_data(&voltage, &power);
+            
+	        // Write back data
+	        if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
+	       
+            return AER_REQ_RESPONSE_READY;
+        }
     }
     return AER_REQ_INV_QUERY_ID;
 }
@@ -110,8 +131,8 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
     /* Toggle GPIO pins on Raspberry Pi	*/
 	//Change pin output according to id and theLight state
 	if (id == 1) {
-		if (theLight){
-		//Activate R
+    if (theLight){
+    //Activate R
 		digitalWrite(7, LOW);
 		}
 		else{
@@ -143,19 +164,8 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
 		}
 		else{
 		digitalWrite(3, HIGH);
-
-		//float voltage, power;
-		getINA219_data(&voltage, &power);
-
-		printf("%f\n", voltage);
-		printf("%f\n", power);
-
-		//printf("Data:%f, %f\n", getINA219_data());
-		//printf("Data:%f", getINA219_data(&voltage, &power));
 		}
 	}
-
-
 
 #endif
 
@@ -169,9 +179,6 @@ uint8_t readLight(uint8_t id) {
 
 // Get INA219 data
 void getINA219_data(float* voltage, float* power){
-
-    //assert(voltage);
-    //assert(power);
 
     FILE *fp;
     char path[1035];
@@ -200,10 +207,8 @@ void getINA219_data(float* voltage, float* power){
     pclose(fp);
 
     //Print results
-    //printf("Voltage=%f\n", voltage);
-    //printf("Power=%f\n", power);
-
-    //return voltage, power;
+    //printf("Voltage=%f\n", *voltage);
+    //printf("Power=%f\n", *power);
 }
 
 /** Asynchronous event model - queue the request for later response */
