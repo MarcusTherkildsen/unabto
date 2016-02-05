@@ -11,9 +11,17 @@ function queryVoltage(input) {
 }
 
 function queryPower(input) {
-  jNabto.request("test_func.json?", function(err, data) {
+  jNabto.request("ina_power.json?", function(err, data) {
     if (!err) {
-      input.val("Voltage: " + data.voltage_v+"V").button("refresh");
+      input.val("Power: " + data.power_w/1000+"W").button("refresh");
+    }
+  });
+}
+
+function queryTemperature(input) {
+  jNabto.request("rpi_temperature.json?", function(err, data) {
+    if (!err) {
+      input.val("Temperature: " + data.temperature_c+"C").button("refresh");
     }
   });
 }
@@ -57,8 +65,12 @@ $(document).on("pageinit", function() {
     queryVoltage($(this));
   });
   
-  $("#try_update").click(function() {
+  $("#power_update").click(function() {
     queryPower($(this));
+  });
+
+  $("#temperature_update").click(function() {
+    queryTemperature($(this));
   });
   
   /* The light_id correspond to the four pins */

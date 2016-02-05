@@ -17,6 +17,10 @@ static uint8_t theLight = 0;
 float voltage, power;
 void getINA219_data(float* voltage, float* power);
 
+// Temperature read from internal RPi sensor
+float temperature;
+void getRPi_temp(float* temperature);
+
 /***************** The uNabto application logic *****************
  * This is where the user implements his/her own functionality
  * to the device. When a Nabto message is received, this function
@@ -106,6 +110,33 @@ application_event_result demo_application(application_request* request, buffer_r
 	       
             return AER_REQ_RESPONSE_READY;
         }
+        case 4: {
+            /*
+            <query name="ina_power.json" description="Read power status" id="4">
+            <request>
+            </request>
+            <response format="json">
+            <parameter name="power_w" type="uint32"/>
+            </response>
+            </query>
+            */
+
+            // Get power from INA219
+            getINA219_data(&voltage, &power);
+
+            // Write back data
+            if (!buffer_write_uint32(write_buffer, power*10000)) return AER_REQ_RSP_TOO_LARGE;
+            
+            return AER_REQ_RESPONSE_READY;
+        }
+        case 5: {
+            getRPi_temp(&temperature);
+
+            // Write back data
+            if (!buffer_write_uint32(write_buffer, temperature)) return AER_REQ_RSP_TOO_LARGE;
+            
+            return AER_REQ_RESPONSE_READY;
+        }
     }
     return AER_REQ_INV_QUERY_ID;
 }
@@ -187,7 +218,7 @@ void getINA219_data(float* voltage, float* power){
     fp = popen("sudo python /home/pi/nabto_test/unabto_sdk/unabto_sdk/unabto/demo/raspberry_pi_sunpi/src/ina219_python_c.py", "r");
 
     if (fp == NULL) {
-        printf("Failed to run command\n" );
+        printf("Failed to run command\n");
         exit(1);
     }
 
@@ -200,6 +231,61 @@ void getINA219_data(float* voltage, float* power){
         }
         else if(k==2){
             *power = atof(path);
+        }
+    }
+
+    /* close */
+    pclose(fp);
+
+    //Print results
+    //printf("Voltage=%f\n", *voltage);
+    //printf("Power=%f\n", *power);
+}
+
+
+char* subString (const char* input, int offset, int len, char* dest)
+{
+    int input_len = strlen (input);
+
+    if (offset + len > input_len)
+    {
+        return NULL;
+    }
+
+    strncpy (dest, input + offset, len);
+    return dest;
+}
+
+// Get RPi temperature
+void getRPi_temp(float* temperature){
+
+    FILE *fp;
+    char path[1035];
+    char dest[80];
+
+    /* Open the command for reading. */
+    fp = popen("/opt/vc/bin/vcgencmd measure_temp", "r");
+
+    if (fp == NULL) {
+        printf("Failed to run command\n");
+        exit(1);
+    }
+
+    /* Read the output a line at a time - output it. */
+    int k = 0;
+    while (fgets(path, sizeof(path)-1, fp) != NULL) {
+        k = k + 1;
+        if (k==1){
+            // Can get temp fine but not convert to int. Most investigate
+            printf("%s\n", path);
+            /*
+            if (subString(path, 5, 7, dest))
+            {
+                printf("%s\n", dest);
+            }
+            */
+            //strncpy(extra, path)
+            //*temperature = path;//atof(strncpy(path), 5, -2);
         }
     }
 
