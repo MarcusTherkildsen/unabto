@@ -27,7 +27,7 @@ void getINA219_data(float* voltage, float* power);
 application_event_result demo_application(application_request* request, buffer_read_t* read_buffer, buffer_write_t* write_buffer) {
     switch(request->queryId) {
         case 1: {
-		   	//  <query name="light_write.json" description="Turn light on and off" id="1">
+            //  <query name="light_write.json" description="Turn light on and off" id="1">
             //    <request>
             //      <parameter name="light_id" type="uint8"/>
             //      <parameter name="light_on" type="uint8"/>
@@ -96,13 +96,13 @@ application_event_result demo_application(application_request* request, buffer_r
             <parameter name="voltage_v" type="uint32"/>
             </response>
             </query>
-	        */
+            */
 
-	        // Get voltage from INA219
-	        getINA219_data(&voltage, &power);
-            
-	        // Write back data
-	        if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
+            // Get voltage from INA219
+            getINA219_data(&voltage, &power);
+
+            // Write back data
+            if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
 	       
             return AER_REQ_RESPONSE_READY;
         }
@@ -132,40 +132,40 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
 	//Change pin output according to id and theLight state
 	if (id == 1) {
     if (theLight){
-    //Activate R
-		digitalWrite(7, LOW);
-		}
-		else{
-		digitalWrite(7, HIGH);
-		}
-	}
-	else if (id == 2) {
-		if (theLight){
-		//Activate G
-		digitalWrite(0, LOW);
-		}
-		else{
-		digitalWrite(0, HIGH);
-		}
-	}
-	else if (id == 3) {
-		if (theLight){
-		//Activate B
-		digitalWrite(2, LOW);
-		}
-		else{
-		digitalWrite(2, HIGH);
-		}
-	}
-	// Check if relay slider activated
-	else if (id == 12){
-		if (theLight){
-		digitalWrite(3, LOW);
-		}
-		else{
-		digitalWrite(3, HIGH);
-		}
-	}
+        //Activate R
+        digitalWrite(7, LOW);
+        }
+    else{
+        digitalWrite(7, HIGH);
+        }
+    }
+    else if (id == 2) {
+        if (theLight){
+        //Activate G
+        digitalWrite(0, LOW);
+        }
+        else{
+        digitalWrite(0, HIGH);
+        }
+    }
+    else if (id == 3) {
+        if (theLight){
+        //Activate B
+        digitalWrite(2, LOW);
+        }
+        else{
+        digitalWrite(2, HIGH);
+        }
+    }
+    // Check if relay slider activated
+    else if (id == 12){
+        if (theLight){
+        digitalWrite(3, LOW);
+        }
+        else{
+        digitalWrite(3, HIGH);
+        }
+    }
 
 #endif
 
@@ -197,7 +197,7 @@ void getINA219_data(float* voltage, float* power){
         k = k + 1;
         if (k==1){
             *voltage = atof(path);
-            }
+        }
         else if(k==2){
             *power = atof(path);
         }
