@@ -113,57 +113,57 @@ application_event_result demo_application(application_request* request, buffer_r
 // Set virtual light and return state,
 uint8_t setLight(uint8_t id, uint8_t onOff) {
     theLight = onOff;
-	if (id == 1) {
-		NABTO_LOG_INFO((theLight?("Nabto: Red turned ON!"):("Nabto: Red turned OFF!")));
-	}
-	else if (id == 2) {
-		NABTO_LOG_INFO((theLight?("Nabto: Green turned ON!"):("Nabto: Green turned OFF!")));
-	}
-	else if (id == 3) {
-		NABTO_LOG_INFO((theLight?("Nabto: Blue turned ON!"):("Nabto: Blue turned OFF!")));
-	}
-	else if (id == 12) {
-		NABTO_LOG_INFO((theLight?("Nabto: Relay turned ON!"):("Nabto: Relay turned OFF!")));
-	}
+    if (id == 1) {
+        NABTO_LOG_INFO((theLight?("Nabto: Red turned ON!"):("Nabto: Red turned OFF!")));
+    }
+    else if (id == 2) {
+        NABTO_LOG_INFO((theLight?("Nabto: Green turned ON!"):("Nabto: Green turned OFF!")));
+    }
+    else if (id == 3) {
+        NABTO_LOG_INFO((theLight?("Nabto: Blue turned ON!"):("Nabto: Blue turned OFF!")));
+    }
+    else if (id == 12) {
+        NABTO_LOG_INFO((theLight?("Nabto: Relay turned ON!"):("Nabto: Relay turned OFF!")));
+    }
 
 
 #ifdef __arm__
     /* Toggle GPIO pins on Raspberry Pi	*/
-	//Change pin output according to id and theLight state
-	if (id == 1) {
-    if (theLight){
-        //Activate R
-        digitalWrite(7, LOW);
+    //Change pin output according to id and theLight state
+    if (id == 1) {
+        if (theLight){
+            //Activate R
+            digitalWrite(7, LOW);
         }
-    else{
-        digitalWrite(7, HIGH);
+        else{
+            digitalWrite(7, HIGH);
         }
     }
     else if (id == 2) {
         if (theLight){
-        //Activate G
-        digitalWrite(0, LOW);
+            //Activate G
+            digitalWrite(0, LOW);
         }
         else{
-        digitalWrite(0, HIGH);
+            digitalWrite(0, HIGH);
         }
     }
     else if (id == 3) {
         if (theLight){
-        //Activate B
-        digitalWrite(2, LOW);
+            //Activate B
+            digitalWrite(2, LOW);
         }
         else{
-        digitalWrite(2, HIGH);
+            digitalWrite(2, HIGH);
         }
     }
     // Check if relay slider activated
     else if (id == 12){
         if (theLight){
-        digitalWrite(3, LOW);
+            digitalWrite(3, LOW);
         }
         else{
-        digitalWrite(3, HIGH);
+            digitalWrite(3, HIGH);
         }
     }
 
