@@ -300,7 +300,9 @@ void getRPi_temp(float* temperature){
                     {
                         *temperature = *temperature + 0.1*val;
                     }
-                } else { // Otherwise, move on to the next character.
+                } 
+                else 
+                { // Otherwise, move on to the next character.
                     p++;
                 }
             }
