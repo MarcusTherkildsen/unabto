@@ -3,7 +3,7 @@ project(unabto_raspberrypi)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../build/cmake/unabto_project.cmake)
 
-message("Making makefiles to raspberry pi RGB demo")
+message("Making makefiles to raspberry pi SunPi demo")
 
 set(src
   ${unabto_src}
