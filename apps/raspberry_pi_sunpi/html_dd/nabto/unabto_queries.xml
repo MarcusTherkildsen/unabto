@@ -22,23 +22,16 @@
     </response>
   </query>
   
-  <query name="ina_voltage.json" description="Read voltage status" id="3">
+  <query name="ina_data.json" description="Read voltage and power status" id="3">
     <request>
     </request>
     <response format="json">
       <parameter name="voltage_v" type="uint32"/>
-    </response>
-  </query>
-  
-  <query name="ina_power.json" description="Read power status" id="4">
-    <request>
-    </request>
-    <response format="json">
       <parameter name="power_w" type="uint32"/>
     </response>
   </query>
 
-  <query name="rpi_temperature.json" description="Read temperature status" id="5">
+  <query name="rpi_temperature.json" description="Read temperature status" id="4">
     <request>
     </request>
     <response format="json">

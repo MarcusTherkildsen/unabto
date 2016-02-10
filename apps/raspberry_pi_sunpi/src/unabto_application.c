@@ -40,15 +40,17 @@ void getRPi_temp(float* temperature);
 application_event_result demo_application(application_request* request, buffer_read_t* read_buffer, buffer_write_t* write_buffer) {
     switch(request->queryId) {
         case 1: {
-            //  <query name="light_write.json" description="Turn light on and off" id="1">
-            //    <request>
-            //      <parameter name="light_id" type="uint8"/>
-            //      <parameter name="light_on" type="uint8"/>
-            //    </request>
-            //    <response>
-            //      <parameter name="light_state" type="uint8"/>
-            //    </response>
-            //  </query>
+            /*
+            <query name="light_write.json" description="Turn light on and off" id="1">
+              <request>
+                <parameter name="light_id" type="uint8"/>
+                <parameter name="light_on" type="uint8"/>
+              </request>
+              <response>
+                <parameter name="light_state" type="uint8"/>
+              </response>
+            </query>
+            */
 
             uint8_t light_id;
             uint8_t light_on;
@@ -75,14 +77,16 @@ application_event_result demo_application(application_request* request, buffer_r
             return AER_REQ_RESPONSE_READY;
         }
         case 2: {
-            //  <query name="light_read.json" description="Read light status" id="2">
-            //    <request>
-            //      <parameter name="light_id" type="uint8"/>
-            //    </request>
-            //    <response>
-            //      <parameter name="light_state" type="uint8"/>
-            //    </response>
-            //  </query>
+            /*
+            <query name="light_read.json" description="Read light status" id="2">
+              <request>
+                <parameter name="light_id" type="uint8"/>
+              </request>
+              <response>
+                <parameter name="light_state" type="uint8"/>
+              </response>
+            </query>
+            */
 
             uint8_t light_id;
             uint8_t light_state;
@@ -102,40 +106,26 @@ application_event_result demo_application(application_request* request, buffer_r
 
 	    case 3: {
             /*
-            <query name="ina_voltage.json" description="Read voltage status" id="3">
-            <request>
-            </request>
-            <response format="json">
-            <parameter name="voltage_v" type="uint32"/>
-            </response>
+            <query name="ina_data.json" description="Read voltage and power status" id="3">
+              <request>
+              </request>
+              <response format="json">
+                <parameter name="voltage_v" type="uint32"/>
+                <parameter name="power_w" type="uint32"/>
+              </response>
             </query>
             */
 
             // Get voltage from INA219
             getINA219_data(&voltage, &power);
 
-            NABTO_LOG_INFO(("Nabto: Read voltage=%f\n", voltage));
+            NABTO_LOG_INFO(("Nabto: Read voltage=%f and power=%f\n", voltage, power));
 
             // Write back data
-            if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
-	       
-            return AER_REQ_RESPONSE_READY;
-        }
-        case 4: {
-            /*
-            <query name="ina_power.json" description="Read power status" id="4">
-            <request>
-            </request>
-            <response format="json">
-            <parameter name="power_w" type="uint32"/>
-            </response>
-            </query>
-            */
-
-            // Get power from INA219
-            getINA219_data(&voltage, &power);
-
-            NABTO_LOG_INFO(("Nabto: Read power=%f\n", power));
+            if (!buffer_write_uint32(write_buffer, voltage*10000)) 
+            {
+                return AER_REQ_RSP_TOO_LARGE;
+            }
 
             // Prepare for negative numbers. This will be converted back in the html_dd app.js file
             if (power<0)
@@ -144,18 +134,20 @@ application_event_result demo_application(application_request* request, buffer_r
             }
             
             // Write back data
-            if (!buffer_write_uint32(write_buffer, power*10000)) return AER_REQ_RSP_TOO_LARGE;
-            
+            if (!buffer_write_uint32(write_buffer, power*10000))
+            {
+                return AER_REQ_RSP_TOO_LARGE;
+	        }
             return AER_REQ_RESPONSE_READY;
         }
-        case 5: {
+        case 4: {
             /*
             <query name="rpi_temperature.json" description="Read temperature status" id="5">
-            <request>
-            </request>
-            <response format="json">
-            <parameter name="temperature_c" type="uint32"/>
-            </response>
+              <request>
+              </request>
+              <response format="json">
+                <parameter name="temperature_c" type="uint32"/>
+              </response>
             </query>
             */
 

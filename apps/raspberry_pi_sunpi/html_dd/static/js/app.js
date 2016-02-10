@@ -7,18 +7,10 @@ var rgbr_val = 0;
 var rgbg_val = 0;
 var rgbb_val = 0;
  
-function queryVoltage(input) {
-  jNabto.request("ina_voltage.json?", function(err, data) {
+function queryINA219(input) {
+  jNabto.request("ina_data.json?", function(err, data) {
     if (!err) {
-      input.val("Voltage: " + (data.voltage_v/10000).toFixed(2) + "V").button("refresh");
-    }
-  });
-}
-
-function queryPower(input) {
-  jNabto.request("ina_power.json?", function(err, data) {
-    if (!err) {
-
+      
       temp_power = data.power_w/10000
 
       // Check if negative
@@ -27,15 +19,16 @@ function queryPower(input) {
         temp_power = temp_power - 200
       }
 
-      input.val("Power: " + temp_power.toFixed(2) + "W").button("refresh");
+      input.val("Voltage: " + (data.voltage_v/10000).toFixed(2) + "V, Power: " + temp_power.toFixed(2) + "W").button("refresh");
     }
   });
 }
 
+
 function queryTemperature(input) {
   jNabto.request("rpi_temperature.json?", function(err, data) {
     if (!err) {
-      input.val("Temperature: " + (data.temperature_c/10000).toFixed(2) + "C").button("refresh");
+      input.val("Temperature: " + (data.temperature_c/10000).toFixed(2) + "\u00B0C").button("refresh");
     }
   });
 }
@@ -127,13 +120,9 @@ $(document).on("pageinit", function() {
     debug: false
   });
   
-  // The three data functions
-  $("#voltage_update").click(function() {
-    queryVoltage($(this));
-  });
-  
-  $("#power_update").click(function() {
-    queryPower($(this));
+  // The two data functions
+  $("#ina_update").click(function() {
+    queryINA219($(this));
   });
 
   $("#temperature_update").click(function() {
