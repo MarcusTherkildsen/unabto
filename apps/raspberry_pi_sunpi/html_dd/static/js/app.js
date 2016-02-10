@@ -140,29 +140,31 @@ $(document).on("pageinit", function() {
     queryTemperature($(this));
   });
 
-  /* The light_id correspond to the four pins
-  Bind change event to the four switches */  
-  jNabto.request("light_read.json?light_id=1", setLight_r);
+  /* The light_id correspond to the four pins */
+  // Getting each pins current state  
+  jNabto.request("light_read.json?light_id=0", setLight_r);
+  jNabto.request("light_read.json?light_id=1", setLight_g);
+  jNabto.request("light_read.json?light_id=2", setLight_b);
+  jNabto.request("light_read.json?light_id=3", setLight_arb);
+
+  /*Bind change event to the four switches */
   $("#rgb-r").change(function() {
     var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight_r);
+    jNabto.request("light_write.json?light_id=0&light_on=" + state, setLight_r);
   });
 
-  jNabto.request("light_read.json?light_id=2", setLight_g);
   $("#rgb-g").change(function() {
     var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=2&light_on=" + state, setLight_g);
+    jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight_g);
   });
-
-  jNabto.request("light_read.json?light_id=3", setLight_b);
+  
   $("#rgb-b").change(function() {
     var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=3&light_on=" + state, setLight_b);
+    jNabto.request("light_write.json?light_id=2&light_on=" + state, setLight_b);
   });
-
-  jNabto.request("light_read.json?light_id=12", setLight_arb);
+  
   $("#arb").change(function() {
     var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=12&light_on=" + state, setLight_arb);
+    jNabto.request("light_write.json?light_id=3&light_on=" + state, setLight_arb);
   });
 });

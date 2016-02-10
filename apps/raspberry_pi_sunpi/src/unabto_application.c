@@ -10,8 +10,17 @@
 uint8_t setLight(uint8_t id, uint8_t onOff);
 uint8_t readLight(uint8_t id);
 
-// The virtual light bulb variable
-static uint8_t theLight = 0;
+// Define each pin status
+uint8_t theLight[] = {0, 0, 0, 0};
+
+// Define pin names
+const char * pin_name[] = {"Red", "Green", "Blue", "Relay"};
+
+// Define on/off
+const char * on_off[] = {"OFF", "ON"};
+
+// Define pin id (wiringPi pin number)
+uint8_t pin_id[] = {7, 0, 2, 3};
 
 // Voltage and Power read from INA219 board
 float voltage, power;
@@ -58,7 +67,7 @@ application_event_result demo_application(application_request* request, buffer_r
             // Set light according to request
             light_state = setLight(light_id, light_on);
 
-            // Write back led state
+            // Write back pin state
             if (!buffer_write_uint8(write_buffer, light_state)) {
                 return AER_REQ_RSP_TOO_LARGE;
             }
@@ -105,7 +114,7 @@ application_event_result demo_application(application_request* request, buffer_r
             // Get voltage from INA219
             getINA219_data(&voltage, &power);
 
-            printf("Read voltage=%f\n", voltage);
+            NABTO_LOG_INFO(("Nabto: Read voltage=%f\n", voltage));
 
             // Write back data
             if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
@@ -126,14 +135,14 @@ application_event_result demo_application(application_request* request, buffer_r
             // Get power from INA219
             getINA219_data(&voltage, &power);
 
-            printf("Read power=%f\n", power);
+            NABTO_LOG_INFO(("Nabto: Read power=%f\n", power));
 
             // Prepare for negative numbers. This will be converted back in the html_dd app.js file
             if (power<0)
             {
                 power = power + 200;
             }
-
+            
             // Write back data
             if (!buffer_write_uint32(write_buffer, power*10000)) return AER_REQ_RSP_TOO_LARGE;
             
@@ -153,7 +162,7 @@ application_event_result demo_application(application_request* request, buffer_r
             // Get internal temperature of the RPi
             getRPi_temp(&temperature);
 
-            printf("Read temperature=%f\n", temperature);
+            NABTO_LOG_INFO(("Nabto: Read temperature=%f\n", temperature));
 
             // Write back data
             if (!buffer_write_uint32(write_buffer, temperature*10000)) return AER_REQ_RSP_TOO_LARGE;
@@ -166,69 +175,29 @@ application_event_result demo_application(application_request* request, buffer_r
 
 // Set GPIO pin and return state,
 uint8_t setLight(uint8_t id, uint8_t onOff) {
-    theLight = onOff;
-    if (id == 1) {
-        NABTO_LOG_INFO((theLight?("Nabto: Red turned ON!"):("Nabto: Red turned OFF!")));
-    }
-    else if (id == 2) {
-        NABTO_LOG_INFO((theLight?("Nabto: Green turned ON!"):("Nabto: Green turned OFF!")));
-    }
-    else if (id == 3) {
-        NABTO_LOG_INFO((theLight?("Nabto: Blue turned ON!"):("Nabto: Blue turned OFF!")));
-    }
-    else if (id == 12) {
-        NABTO_LOG_INFO((theLight?("Nabto: Relay turned ON!"):("Nabto: Relay turned OFF!")));
-    }
+    theLight[id] = onOff;
 
+    NABTO_LOG_INFO(("Nabto: %s turned %s!\n", pin_name[id], on_off[theLight[id]]));
 
 #ifdef __arm__
     /* Toggle GPIO pins on Raspberry Pi	*/
     //Change pin output according to id and theLight state
-    if (id == 1) {
-        if (theLight){
-            //Activate R
-            digitalWrite(7, LOW);
-        }
-        else{
-            digitalWrite(7, HIGH);
-        }
-    }
-    else if (id == 2) {
-        if (theLight){
-            //Activate G
-            digitalWrite(0, LOW);
-        }
-        else{
-            digitalWrite(0, HIGH);
-        }
-    }
-    else if (id == 3) {
-        if (theLight){
-            //Activate B
-            digitalWrite(2, LOW);
-        }
-        else{
-            digitalWrite(2, HIGH);
-        }
-    }
-    // Check if relay slider activated
-    else if (id == 12){
-        if (theLight){
-            digitalWrite(3, LOW);
-        }
-        else{
-            digitalWrite(3, HIGH);
-        }
-    }
 
+    if (theLight[id]){
+        //Activate pin
+        digitalWrite(pin_id[id], LOW);
+    }
+    else if(theLight[id]==0){
+        digitalWrite(pin_id[id], HIGH);
+    }
 #endif
 
-    return theLight;
+    return theLight[id];
 }
 
 // Return light state
 uint8_t readLight(uint8_t id) {
-    return theLight;
+    return theLight[id];
 }
 
 // Get INA219 data
@@ -236,15 +205,13 @@ void getINA219_data(float* voltage, float* power){
 
     FILE *fp;
     char path[1035];
-
     /* Open the command for reading. */
     fp = popen("sudo python /home/pi/nabto_test/unabto_sdk/unabto_sdk/unabto/demo/raspberry_pi_sunpi/src/ina219_python_c.py", "r");
 
     if (fp == NULL) {
-        printf("Failed to run command\n");
+        NABTO_LOG_INFO(("Failed to run Python script\n"));
         exit(1);
     }
-
     /* Read the output a line at a time - output it. */
     int k = 0;
     while (fgets(path, sizeof(path)-1, fp) != NULL) {
@@ -256,13 +223,8 @@ void getINA219_data(float* voltage, float* power){
             *power = atof(path);
         }
     }
-
     /* close */
     pclose(fp);
-
-    //Print results
-    //printf("Voltage=%f\n", *voltage);
-    //printf("Power=%f\n", *power);
 }
 
 
@@ -276,7 +238,7 @@ void getRPi_temp(float* temperature){
     fp = popen("/opt/vc/bin/vcgencmd measure_temp", "r");
 
     if (fp == NULL) {
-        printf("Failed to run command\n");
+        NABTO_LOG_INFO(("Failed to run Python script\n"));
         exit(1);
     }
 

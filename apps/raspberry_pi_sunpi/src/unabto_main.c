@@ -26,11 +26,17 @@ int main(int argc, char* argv[])
 #ifdef __arm__
 
     // Initialize GPIO pins
+    // 7,0,2,3
+    //(R,G,B,Relay)
     wiringPiSetup();
-    pinMode(0, OUTPUT); // R
-    pinMode(2, OUTPUT); // G
-    pinMode(7, OUTPUT); // B
-    pinMode(3, OUTPUT); // Arb
+    pinMode(7, OUTPUT);
+    pinMode(0, OUTPUT);
+    pinMode(2, OUTPUT);
+    pinMode(3, OUTPUT);
+    digitalWrite(2, HIGH);
+    digitalWrite(0, HIGH);
+    digitalWrite(7, HIGH);
+    digitalWrite(3, HIGH);
 
 #endif
 
