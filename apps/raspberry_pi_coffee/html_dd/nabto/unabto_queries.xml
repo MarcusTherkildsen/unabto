@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<unabto_queries 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://www.nabto.com/unabto/query_model.xsd">
+
+  <!--Write to coffee machine, i.e. this is where an order is parsed through. Return a "job accepted" response.-->
+  <query name="cm_write.json" description="Turn light on and off" id="1">
+    <request>
+      <parameter name="beverage_id" type="uint8"/>
+    </request>
+    <response format="json">
+      <parameter name="beverage_status" type="uint8"/>
+    </response>
+  </query>
+
+  <!--Possibly return string instead, depending on the machine in question-->
+  <query name="cm_status.json" description="Get coffee machine status" id="2">
+    <request>
+    </request>
+    <response format="json">
+      <parameter name="cm_status" type="uint8"/>
+    </response>
+  </query>
+
+  <!-- Get current water temperature of the coffee machine-->
+  <query name="cm_temperature.json" description="Read temperature status" id="3">
+    <request>
+    </request>
+    <response format="json">
+      <parameter name="temperature_c" type="uint32"/>
+    </response>
+  </query>
+
+	
+</unabto_queries>

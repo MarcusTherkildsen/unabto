@@ -1,0 +1,21 @@
+/**
+ *  CSS for uNabto Demos
+ */
+
+.ui-content .ui-listview {
+  margin-top: 0;
+}
+
+#container {
+  text-align: center;
+}
+
+.wrapper {
+    text-align: center;
+    vertical-align: middle
+}
+
+.button {
+    position: absolute;
+    top: 50%;
+}
