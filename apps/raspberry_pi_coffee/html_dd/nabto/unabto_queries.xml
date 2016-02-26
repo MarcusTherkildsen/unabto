@@ -4,11 +4,12 @@
     xsi:noNamespaceSchemaLocation="http://www.nabto.com/unabto/query_model.xsd">
 
   <!--Write to coffee machine, i.e. this is where an order is parsed through. Return a "job accepted" response.-->
-  <query name="cm_write.json" description="Turn light on and off" id="1">
+  <query name="cm_write.json" description="Send order to coffee machine" id="1">
     <request>
       <parameter name="beverage_id" type="uint8"/>
     </request>
     <response format="json">
+      <parameter name="beverage_status"
     </response>
   </query>
 
