@@ -14,137 +14,12 @@ const char *message1 = "Thread 1";
 int iret1;
 void *print_message_function( void *ptr );
 
-// Function prototypes
-uint8_t setLight(uint8_t id, uint8_t onOff);
-uint8_t readLight(uint8_t id);
-
-// Define each pin status
-uint8_t theLight[] = {0, 0, 0};
-
 // Define beverage names
 const char * beverage_name[] = {"Coffee", "Coffee", "Coffee"};
 
-// Define pin names
-const char * pin_name[] = {"Red", "Green", "Blue", "Relay"};
+// sendOrder prototype
+void sendOrder(void *arg);
 
-// Define on/off
-const char * on_off[] = {"OFF", "ON"};
-
-// Define pin id (wiringPi pin number)
-uint8_t pin_id[] = {10};
-
-// Count variable
-uint8_t i;
-
-// Voltage and Power read from INA219 board
-float voltage, power;
-void getINA219_data(float* voltage, float* power);
-
-// Temperature read from internal RPi sensor
-float temperature;
-void getRPi_temp(float* temperature);
-
-void sendOrder(uint8_t id);
-
-/* This is our thread function.  It is like main(), but for a thread */
-void *threadFunc(void *arg)
-{
-
-    printf("Now running thread\n");
-
-    //printf("What the fuck %d\n", beverage_id);
-    
-    char *str = (char *)arg;
-    int id = 0;
-
-
-    printf("The read beverage_id was %d\n", id);
-
-    // Shut off manual control
-    digitalWrite(11, LOW);
-    delay(100);
-
-    // Go all the way to the left
-    
-    
-    for (i = 0; i < 5; i++){
-
-        digitalWrite(13, HIGH);
-        delay(400);
-        digitalWrite(14, HIGH);
-        delay(400);
-        digitalWrite(13, LOW);
-        delay(400);
-        digitalWrite(14, LOW);
-
-        delay(400);
-    }
-
-
-    // After this all pins are LOW
-    
-    
-    // Go three steps right
-    for (i = 0; i < 3; i++){
-        printf("This i %d\n", i);
-        // If odd
-        if (i % 2 != 0){
-            digitalWrite(14, LOW);
-            delay(400);
-            digitalWrite(13, LOW);
-            
-            
-        }
-        else{
-            digitalWrite(14, HIGH);
-            delay(400);
-            digitalWrite(13, HIGH);
-
-        }
-        delay(400);
-    }
-    
-    // Now we should be at coffee
-
-    
-    // Push button
-    digitalWrite(10, LOW);
-    digitalWrite(10, HIGH);
-    delay(100); // 0.1 sec
-    digitalWrite(10, LOW);
-    
-
-    delay(1000);
-
-    // Set the steppers to low
-    digitalWrite(13, LOW);
-    digitalWrite(14, LOW);
-
-    // Turn on manual control
-    digitalWrite(11, HIGH);
-
-
-    //char *str;
-    //int i = 0;
-
-
-    //NABTO_LOG_INFO(("Requested beverage id: %d\n", id));
-    //NABTO_LOG_INFO(("Requested beverage: %s\n", beverage_name[id]));
-
-    //printf("%s\n", str);
-    /*
-    while(i < 10 )
-    {
-        //usleep(10000);
-        delay(500);
-
-        //printf("threadFunc says: %s\n",str);
-        printf("Still running thread\n");
-        ++i;
-    }
-    */
-    return NULL;
-}
 
 /***************** The uNabto application logic *****************
  * This is where the user implements his/her own functionality
@@ -159,7 +34,7 @@ application_event_result demo_application(application_request* request, buffer_r
             
             /*
             <!--Write to coffee machine, i.e. this is where an order is parsed through. Return a "job accepted" response.-->
-            <query name="cm_write.json" description="Turn light on and off" id="1">
+            <query name="cm_write.json" description="Send order to coffee machine" id="1">
               <request>
                 <parameter name="beverage" type="uint8"/>
               </request>
@@ -170,60 +45,42 @@ application_event_result demo_application(application_request* request, buffer_r
             */
 
             uint8_t beverage_id;
-            uint8_t beverage_state;
-
-            uint8_t light_id;
-            uint8_t light_on;
-            uint8_t light_state;
+            uint8_t beverage_status;
 
             // Read parameters in request
             if (!buffer_read_uint8(read_buffer, &beverage_id)) {
-                NABTO_LOG_ERROR(("Can't read light_id, the buffer is too small"));
+                NABTO_LOG_ERROR(("Can't read beverage_id, the buffer is too small"));
                 return AER_REQ_TOO_SMALL;
             }
 
-            printf("Read beverage id to be %d\n", beverage_id);
+            NABTO_LOG_INFO(("Requested beverage id: %d\n", beverage_id));
+            NABTO_LOG_INFO(("Requested beverage: %s\n", beverage_name[beverage_id]));
 
-            // What, just having coffee first of
-
-            iret1 = pthread_create( &thread1, NULL, threadFunc, "Ordering coffee");
-            if(iret1)
-            {
-                fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
-                exit(EXIT_FAILURE);
-            }
-
-            printf("pthread_create() for thread 1 returns: %d\n",iret1);
-            
-
-            // Send order according to beverage_id
-
-            /* Create independent threads each of which will execute function */
-
-
+            // Check if a thread is already running, if yes then close it. 
             /*
-            iret1 = pthread_create( &thread1, NULL, print_message_function, (void*) message1);
-            if(iret1)
-            {
-                fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
-                exit(EXIT_FAILURE);
-            }
-
-            printf("pthread_create() for thread 1 returns: %d\n",iret1);
-
-
             pthread_join( thread1, NULL);
 
-            //exit(EXIT_SUCCESS);
             */
 
-            //sendOrder(beverage_id);
-            //beverage_state = sendOrder(beverage_id);
 
-            beverage_state = 0;
+            // Send order according to beverage_id
+            iret1 = pthread_create( &thread1, NULL, sendOrder, "Ordering coffee");
+            if(iret1)
+            {
+                //fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
+                //exit(EXIT_FAILURE);
+
+                // Something went wrong with the thread
+                beverage_status = 0;
+            }
+            else
+            {
+                // Succesfully sent the command to the thread. 
+                beverage_status = 1;
+            }
             
             // Write back beverage state
-            if (!buffer_write_uint8(write_buffer, beverage_state)) {
+            if (!buffer_write_uint8(write_buffer, beverage_status)) {
                 return AER_REQ_RSP_TOO_LARGE;
             }
             
@@ -285,118 +142,74 @@ application_event_result demo_application(application_request* request, buffer_r
 }
 
 
+/* This is our thread function.  It is like main(), but for a thread */
+void *sendOrder(void *arg)
+{
 
+    printf("Now running thread\n");
 
-// Send order to coffee machine
-void sendOrder(uint8_t id){
-    NABTO_LOG_INFO(("Requested beverage id: %d\n", id));
-    NABTO_LOG_INFO(("Requested beverage: %s\n", beverage_name[id]));
+    // Figure out how to pass an integer to this thread such that we can order the whole menu    
+    char *str = (char *)arg;
+    int id = 0;
+    int wait_msec = 400; // Experiment with this value
 
-    /*
-    SEND ACTUAL COMMAND TO COFFEE MACHINE
-    */
+    #ifdef __arm__
 
     // Shut off manual control
     digitalWrite(11, LOW);
-    delay(100);
+    delay(wait_msec);
 
     // Go all the way to the left
-    
-    
     for (i = 0; i < 5; i++){
 
         digitalWrite(13, HIGH);
-        delay(40);
+        delay(wait_msec);
         digitalWrite(14, HIGH);
-        delay(80);
+        delay(wait_msec);
         digitalWrite(13, LOW);
-        delay(40);
+        delay(wait_msec);
         digitalWrite(14, LOW);
 
-        delay(40);
+        delay(wait_msec);
     }
-    
 
     // After this all pins are LOW
-    
-    /*
-    // Go three steps right
+        
+    // Go three steps right (should be changed to the variable passed to this function)
     for (i = 0; i < 3; i++){
-
         // If odd
         if (i % 2 != 0){
-            digitalWrite(14, HIGH);
-            delay(40);
-            digitalWrite(13, HIGH);
-            delay(40);
+            digitalWrite(14, LOW);
+            delay(wait_msec);
+            digitalWrite(13, LOW);
         }
         else{
-            digitalWrite(14, LOW);
-            delay(40);
-            digitalWrite(13, LOW);
-            delay(40);
+            digitalWrite(14, HIGH);
+            delay(wait_msec);
+            digitalWrite(13, HIGH);
         }
-        delay(40);
+        delay(wait_msec);
     }
-    */
-    // Now we should be at coffee
-
-    /*
+    
+    // Now we should be at the wanted beverage
+    
     // Push button
     digitalWrite(10, LOW);
     digitalWrite(10, HIGH);
     delay(100); // 0.1 sec
-    digitalWrite(10, LOW);
-    */
+    digitalWrite(10, LOW);   
 
+    // Set the steppers to low
+    digitalWrite(13, LOW);
+    digitalWrite(14, LOW);
 
     // Turn on manual control
     digitalWrite(11, HIGH);
 
+    #endif
+    return NULL;
 }
 
-
-// Set GPIO pin and return state,
-uint8_t setLight(uint8_t id, uint8_t onOff) {
-    theLight[id] = onOff;
-
-    NABTO_LOG_INFO(("Nabto: %s turned %s!\n", pin_name[id], on_off[theLight[id]]));
-
-#ifdef __arm__
-    /* Toggle GPIO pins on Raspberry Pi	*/
-    //Change pin output according to id and theLight state
-
-    if (theLight[id]){
-        //Activate pin
-        digitalWrite(pin_id[id], LOW);
-    }
-    else if(theLight[id]==0){
-        digitalWrite(pin_id[id], HIGH);
-    }
-#endif
-
-    return theLight[id];
-}
-
-// Return light state
-uint8_t readLight(uint8_t id) {
-    return theLight[id];
-}
-
-// Get INA219 data
-void getINA219_data(float* voltage, float* power){
-
-    
-    *voltage = 0;
-    *power = 0;
-        
-}
-
-
-// Get RPi temperature
-void getRPi_temp(float* temperature){
-    *temperature = 0;
-}
 
 void *print_message_function( void *ptr )
 {
@@ -427,7 +240,6 @@ application_event_result application_event(application_request* request, buffer_
         return AER_REQ_ACCEPTED;
     }
 
-
 }
 
 // Query whether a response to a queued request is ready
@@ -453,17 +265,12 @@ bool application_poll_query(application_request** appreq)
     }
     return false;
     
-    /*
-    *appreq = currentApplicationRequest;
-    return isSwitchStateReadingReceived();
-    */
 }
 
 // Retrieve the response from a queued request
 application_event_result application_poll(application_request* request, buffer_read_t* r_b, buffer_write_t* w_b)
 {
 
-    
     application_event_result res;
 
     if (saved_app_req == 0) {
@@ -477,17 +284,6 @@ application_event_result application_poll(application_request* request, buffer_r
     }
     saved_app_req = 0;
     return res;
-    
-
-    /*
-    uint8_t SwitchState;
-
-    switchState = receiveStichStateReading();
-    unabto_query_write_uint8(w_b, switchStatus);
-
-    currentApplicationRequest = NULL;
-    return AER_REQ_RESPONSE_READY;
-    */
 
 }
 
@@ -496,11 +292,6 @@ void application_poll_drop(application_request* request)
 {
     NABTO_LOG_INFO(("Application poll drop: Response discarded"));
     saved_app_req = 0;
-
-    /*
-    dropSwitchStateProcessing();
-    currentApplicationRequest = NULL;
-    */
 }
 
 /** Synchronous event model - just call the demo application directly */
