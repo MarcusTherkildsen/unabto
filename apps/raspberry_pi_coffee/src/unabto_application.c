@@ -18,7 +18,7 @@ void *print_message_function( void *ptr );
 const char * beverage_name[] = {"Coffee", "Coffee", "Coffee"};
 
 // sendOrder prototype
-void sendOrder(void *arg);
+void* sendOrder(void *arg);
 
 
 /***************** The uNabto application logic *****************
@@ -56,20 +56,14 @@ application_event_result demo_application(application_request* request, buffer_r
             NABTO_LOG_INFO(("Requested beverage id: %d\n", beverage_id));
             NABTO_LOG_INFO(("Requested beverage: %s\n", beverage_name[beverage_id]));
 
-            // Check if a thread is already running, if yes then close it. 
-            /*
-            pthread_join( thread1, NULL);
-
-            */
-
+            // Preparing the integer to pass to the thread
+            int *theOrder = malloc(sizeof(*theOrder));
+            *theOrder = beverage_id;
 
             // Send order according to beverage_id
-            iret1 = pthread_create( &thread1, NULL, sendOrder, "Ordering coffee");
+            iret1 = pthread_create( &thread1, NULL, &sendOrder, theOrder);
             if(iret1)
             {
-                //fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
-                //exit(EXIT_FAILURE);
-
                 // Something went wrong with the thread
                 beverage_status = 0;
             }
@@ -143,15 +137,19 @@ application_event_result demo_application(application_request* request, buffer_r
 
 
 /* This is our thread function.  It is like main(), but for a thread */
-void *sendOrder(void *arg)
+void* sendOrder(void *arg)
 {
+
+    // Set thread to be detachable such that it will release resources when finished.
+    pthread_detach(pthread_self());
 
     printf("Now running thread\n");
 
-    // Figure out how to pass an integer to this thread such that we can order the whole menu    
-    char *str = (char *)arg;
-    int id = 0;
-    int wait_msec = 400; // Experiment with this value
+    // Get the passed item/integer
+    int id = *((int *) arg);
+
+    // Experiment with this value
+    int wait_msec = 400; 
 
     #ifdef __arm__
 
@@ -175,8 +173,8 @@ void *sendOrder(void *arg)
 
     // After this all pins are LOW
         
-    // Go three steps right (should be changed to the variable passed to this function)
-    for (i = 0; i < 3; i++){
+    // Go id amount of steps to the right to the desired item
+    for (i = 0; i < id; i++){
         // If odd
         if (i % 2 != 0){
             digitalWrite(14, LOW);
