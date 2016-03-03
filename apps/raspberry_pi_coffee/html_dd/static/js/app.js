@@ -16,11 +16,15 @@ function queryTemperature(input) {
 }
 
 // Send order
-function brew_stuff(input) {
-  
-  // Need a Nabto request here to check if connected 
-  jNabto.request("cm_write.json?beverage_id=0", function(err, data) {
+function brew_stuff(x) {
+  //alert(x);
+  // Send a Nabto request with the selected beverage
+  jNabto.request("cm_write.json?beverage_id="+x, function(err, data) {
   if (!err) {
+
+
+    // I want the button to become "non-clickable" + display "Now brewing"
+
     //window.alert("Ordering stuff");
     //input.val("Something is brewing").button("refresh");
     //document.getElementById("#brew_button".value="Something is brewing");
@@ -46,9 +50,9 @@ $(document).on("pageinit", function() {
   });
   
   
-  // The three data functions
+  // When brew button is pushed get the chosen radio button value
   $("#brew_button").click(function() {
-    brew_stuff($(this));
+    brew_stuff($('input[name="radio-choice"]:checked').val());
   });
   
 
@@ -66,22 +70,4 @@ $(document).on("pageinit", function() {
   // Read coffee machine status
   //jNabto.request("cm_status.json?", setLight_r);
   
-  
-  /*Bind change event to the four switches */
-  /*
-  $("#rgb-r").change(function() {
-    var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=0&light_on=" + state, setLight_r);
-  });
-
-  $("#rgb-g").change(function() {
-    var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight_g);
-  });
-  
-  $("#rgb-b").change(function() {
-    var state = $(this).val() === "off"?0:1;
-    jNabto.request("light_write.json?light_id=2&light_on=" + state, setLight_b);
-  });
-  */
 });

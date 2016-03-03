@@ -12,10 +12,11 @@
 pthread_t thread1;
 const char *message1 = "Thread 1";
 int iret1;
+int i;
 void *print_message_function( void *ptr );
 
 // Define beverage names
-const char * beverage_name[] = {"Coffee", "Coffee", "Coffee"};
+const char * beverage_name[] = {"2xEspresso", "2xCoffee", "Espresso", "Coffee", "Machhiato", "Cappucino", "Milk Froth", "Warm Milk", "Hot Water"};
 
 // sendOrder prototype
 void* sendOrder(void *arg);
@@ -31,7 +32,7 @@ void* sendOrder(void *arg);
 application_event_result demo_application(application_request* request, buffer_read_t* read_buffer, buffer_write_t* write_buffer) {
     switch(request->queryId) {
         case 1: {
-            
+
             /*
             <!--Write to coffee machine, i.e. this is where an order is parsed through. Return a "job accepted" response.-->
             <query name="cm_write.json" description="Send order to coffee machine" id="1">
@@ -72,14 +73,14 @@ application_event_result demo_application(application_request* request, buffer_r
                 // Succesfully sent the command to the thread. 
                 beverage_status = 1;
             }
-            
+
             // Write back beverage state
             if (!buffer_write_uint8(write_buffer, beverage_status)) {
                 return AER_REQ_RSP_TOO_LARGE;
             }
-            
+
             return AER_REQ_RESPONSE_READY;
-            
+
         }
         case 2: {
             /*
@@ -100,7 +101,8 @@ application_event_result demo_application(application_request* request, buffer_r
             if (!buffer_read_uint8(read_buffer, &light_id)) return AER_REQ_TOO_SMALL;
 
             // Read light state
-            light_state = readLight(light_id);
+            //light_state = readLight(light_id);
+            light_state=1;
 
             // Write back led state
             if (!buffer_write_uint8(write_buffer, light_state)) return AER_REQ_RSP_TOO_LARGE;
@@ -122,13 +124,13 @@ application_event_result demo_application(application_request* request, buffer_r
             */
 
             // Get voltage from INA219
-            getINA219_data(&voltage, &power);
+            //getINA219_data(&voltage, &power);
+            uint8_t voltage=1;
 
             NABTO_LOG_INFO(("Nabto: Read voltage=%f\n", voltage));
 
             // Write back data
             if (!buffer_write_uint32(write_buffer, voltage*10000)) return AER_REQ_RSP_TOO_LARGE;
-	       
             return AER_REQ_RESPONSE_READY;
         }
     }
@@ -154,55 +156,55 @@ void* sendOrder(void *arg)
     #ifdef __arm__
 
     // Shut off manual control
-    digitalWrite(11, LOW);
+//    digitalWrite(11, LOW);
     delay(wait_msec);
 
     // Go all the way to the left
     for (i = 0; i < 5; i++){
 
-        digitalWrite(13, HIGH);
+  //      digitalWrite(13, HIGH);
         delay(wait_msec);
-        digitalWrite(14, HIGH);
+    //    digitalWrite(14, HIGH);
         delay(wait_msec);
-        digitalWrite(13, LOW);
+      //  digitalWrite(13, LOW);
         delay(wait_msec);
-        digitalWrite(14, LOW);
+        //digitalWrite(14, LOW);
 
         delay(wait_msec);
     }
 
     // After this all pins are LOW
-        
+
     // Go id amount of steps to the right to the desired item
     for (i = 0; i < id; i++){
         // If odd
         if (i % 2 != 0){
-            digitalWrite(14, LOW);
+          //  digitalWrite(14, LOW);
             delay(wait_msec);
-            digitalWrite(13, LOW);
+            //digitalWrite(13, LOW);
         }
         else{
-            digitalWrite(14, HIGH);
+            //digitalWrite(14, HIGH);
             delay(wait_msec);
-            digitalWrite(13, HIGH);
+            //digitalWrite(13, HIGH);
         }
         delay(wait_msec);
     }
-    
+
     // Now we should be at the wanted beverage
-    
+
     // Push button
-    digitalWrite(10, LOW);
-    digitalWrite(10, HIGH);
+    //digitalWrite(10, LOW);
+    //digitalWrite(10, HIGH);
     delay(100); // 0.1 sec
-    digitalWrite(10, LOW);   
+    //digitalWrite(10, LOW);   
 
     // Set the steppers to low
-    digitalWrite(13, LOW);
-    digitalWrite(14, LOW);
+    //digitalWrite(13, LOW);
+    //digitalWrite(14, LOW);
 
     // Turn on manual control
-    digitalWrite(11, HIGH);
+    //digitalWrite(11, HIGH);
 
     #endif
     return NULL;
