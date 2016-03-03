@@ -28,14 +28,14 @@ int main(int argc, char* argv[])
 #ifdef __arm__
 
     // Initialize GPIO pins
-//    wiringPiSetup();
+    wiringPiSetup();
     for (i_main = 0; i_main < sizeof(pin_id_main); i_main++){
-//        pinMode(pin_id_main[i_main], OUTPUT);
-//        digitalWrite(pin_id_main[i_main], LOW);    
+        pinMode(pin_id_main[i_main], OUTPUT);
+        digitalWrite(pin_id_main[i_main], LOW);    
     }
 
     // Initialize the rotary switch to manual control
-//    digitalWrite(pin_id_main[0], HIGH);
+    digitalWrite(pin_id_main[0], HIGH);
 
 #endif
 

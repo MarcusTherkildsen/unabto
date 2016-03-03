@@ -151,24 +151,24 @@ void* sendOrder(void *arg)
     int id = *((int *) arg);
 
     // Experiment with this value
-    int wait_msec = 400; 
+    int wait_msec = 300; 
 
     #ifdef __arm__
 
     // Shut off manual control
-//    digitalWrite(11, LOW);
+    digitalWrite(11, LOW);
     delay(wait_msec);
 
     // Go all the way to the left
     for (i = 0; i < 5; i++){
 
-  //      digitalWrite(13, HIGH);
+        digitalWrite(13, HIGH);
         delay(wait_msec);
-    //    digitalWrite(14, HIGH);
+        digitalWrite(14, HIGH);
         delay(wait_msec);
-      //  digitalWrite(13, LOW);
+        digitalWrite(13, LOW);
         delay(wait_msec);
-        //digitalWrite(14, LOW);
+        digitalWrite(14, LOW);
 
         delay(wait_msec);
     }
@@ -179,14 +179,14 @@ void* sendOrder(void *arg)
     for (i = 0; i < id; i++){
         // If odd
         if (i % 2 != 0){
-          //  digitalWrite(14, LOW);
+            digitalWrite(14, LOW);
             delay(wait_msec);
-            //digitalWrite(13, LOW);
+            digitalWrite(13, LOW);
         }
         else{
-            //digitalWrite(14, HIGH);
+            digitalWrite(14, HIGH);
             delay(wait_msec);
-            //digitalWrite(13, HIGH);
+            digitalWrite(13, HIGH);  
         }
         delay(wait_msec);
     }
@@ -194,17 +194,20 @@ void* sendOrder(void *arg)
     // Now we should be at the wanted beverage
 
     // Push button
-    //digitalWrite(10, LOW);
-    //digitalWrite(10, HIGH);
+    digitalWrite(10, LOW);
+    digitalWrite(10, HIGH);
     delay(100); // 0.1 sec
-    //digitalWrite(10, LOW);   
+    digitalWrite(10, LOW);   
+
+    // Wait 2 seconds
+    delay(2000);
 
     // Set the steppers to low
-    //digitalWrite(13, LOW);
-    //digitalWrite(14, LOW);
+    digitalWrite(13, LOW);
+    digitalWrite(14, LOW);
 
     // Turn on manual control
-    //digitalWrite(11, HIGH);
+    digitalWrite(11, HIGH);
 
     #endif
     return NULL;
