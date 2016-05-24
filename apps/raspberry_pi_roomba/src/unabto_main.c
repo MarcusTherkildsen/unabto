@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 
 #ifdef __arm__
 
-  system("/home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
+  system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
 
 #endif
 
@@ -52,9 +52,7 @@ int main(int argc, char* argv[])
   }
 
   unabto_close();
-#if USING_PIFACE
-  pfio_deinit();
-#endif
+
   return 0;
 }
 

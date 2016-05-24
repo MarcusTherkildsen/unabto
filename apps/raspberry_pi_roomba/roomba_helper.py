@@ -77,8 +77,8 @@ elif sys.argv[1] == 'initialise':
 	initialise_wake_pin(i)
 	wake_roomba(i)
 	ser = initialise_serial()
-	#print "Going into safe mode"
-	#write_serial(ser, (128, 131))
+	print "Going into safe mode"
+	write_serial(ser, (128, 131))
 	print "Set display to NAb T/O"
 	write_serial(ser, (163, 55, 119, 124, 93))
 
@@ -86,8 +86,8 @@ elif sys.argv[1] == 'clean':
 	initialise_pins(i)
 	wake_roomba(i)
 	ser = initialise_serial()
-	#print "Going into safe mode"
-	#write_serial(ser, (128, 131))
+	print "Going into safe mode"
+	write_serial(ser, (128, 131))
 	print "Set display to NAb T/O"
 	write_serial(ser, (163, 55, 119, 124, 93))
 	print "Starting normal clean cycle"
