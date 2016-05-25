@@ -24,7 +24,22 @@ int main(int argc, char* argv[])
 
 #ifdef __arm__
 
-  system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
+  //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
+
+  char *portname = "/dev/ttyUSB0";
+
+  int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+  if (fd < 0)
+  {
+    printf ("error %d opening %s: %s\n", errno, portname, strerror (errno));
+    return;
+  }
+  else{
+    printf("Opening %s: %s\n", portname, strerror (errno));
+  }
+
+  set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+  set_blocking (fd, 0);                // set no blocking
 
 #endif
 
@@ -37,7 +52,7 @@ int main(int argc, char* argv[])
   }
   NABTO_LOG_INFO(("Identity: '%s'", nms->id));
   NABTO_LOG_INFO(("Program Release %" PRIu32 ".%" PRIu32, RELEASE_MAJOR, RELEASE_MINOR));
-  NABTO_LOG_INFO(("Buffer size: %" PRIsize, nms->bufsize));
+  NABTO_LOG_INFO(("Buffer size: %d" , nms->bufsize));
 
   // Initialize nabto
   if (!unabto_init()) {

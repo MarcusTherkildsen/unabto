@@ -82,6 +82,41 @@ elif sys.argv[1] == 'initialise':
 	print "Set display to NAb T/O"
 	write_serial(ser, (163, 55, 119, 124, 93))
 
+elif sys.argv[1] == 'initialise_with_sound':
+  initialise_pins(i)
+  initialise_wake_pin(i)
+  wake_roomba(i)
+  ser = initialise_serial()
+
+  # Songs can be defined while in passive mode (which we are right now)
+  # DSB
+  write_serial(ser, (140, 0, 3, 74, 40, 75, 20, 70, 32))
+
+  # Reverse
+  write_serial(ser, (140, 1, 6, 84, 32, 30, 32, 84, 32, 30, 32, 84, 32, 30, 32))
+
+  # Car horn (D, H, G, G, G, A, H, C, D, D, D, H)
+  write_serial(ser, (140, 2, 12, 74,10, 71,10, 67,10, 67,10, 67,10, 69,10, 71,10, 72,10, 74,10, 74,10, 74,10, 71,10)) 
+
+  # Car horn high
+  write_serial(ser, (140, 3, 12, 86,10, 83,10, 79,10, 79,10, 79,10, 81,10, 83,10, 84,10, 86,10, 86,10, 86,10, 83,10)) 
+
+
+  print "Going into safe mode"
+  write_serial(ser, (128, 131))
+  print "Set display to NAb T/O"
+  write_serial(ser, (163, 55, 119, 124, 93))
+
+elif sys.argv[1] == 'initialise':
+  initialise_pins(i)
+  initialise_wake_pin(i)
+  wake_roomba(i)
+  ser = initialise_serial()
+  print "Going into safe mode"
+  write_serial(ser, (128, 131))
+  print "Set display to NAb T/O"
+  write_serial(ser, (163, 55, 119, 124, 93))
+
 elif sys.argv[1] == 'clean':
 	initialise_pins(i)
 	wake_roomba(i)
@@ -92,6 +127,12 @@ elif sys.argv[1] == 'clean':
 	write_serial(ser, (163, 55, 119, 124, 93))
 	print "Starting normal clean cycle"
 	write_serial(ser, 135)
+
+elif sys.argv[1] == 'play': # and a number
+  initialise_pins(i)
+  wake_roomba(i)
+  ser = initialise_serial()
+  write_serial(ser, (141, int(sys.argv[2])))
 
 elif sys.argv[1] == 'stop':
 	initialise_pins(i)
