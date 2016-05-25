@@ -22,6 +22,7 @@ if(using_piface)
   list(APPEND src ${CMAKE_CURRENT_SOURCE_DIR}/src/unabto_application_piface.c)
 else()
   list(APPEND src ${CMAKE_CURRENT_SOURCE_DIR}/src/unabto_application.c)
+  list(APPEND src ${CMAKE_CURRENT_SOURCE_DIR}/src/c_serial.c)
 endif()
 
 

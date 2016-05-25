@@ -9,6 +9,23 @@
 #include "unabto_version.h"
 #include "modules/cli/unabto_args.h"
 
+#include "c_serial.h"
+
+#include <errno.h>
+#include <termios.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h> //memset
+
+#include <features.h>
+
+#include <fcntl.h>
+ 
+/* Not technically required, but needed on some UNIX distributions */
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <sys/ioctl.h>
 
 void nabto_yield(int msec);
 
@@ -24,8 +41,13 @@ int main(int argc, char* argv[])
 
 #ifdef __arm__
 
-  //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
+  system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
 
+#endif
+
+
+  /////////////////////// Functions to be ran once on init /////////////////////////
+  
   char *portname = "/dev/ttyUSB0";
 
   int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
@@ -41,7 +63,7 @@ int main(int argc, char* argv[])
   set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
   set_blocking (fd, 0);                // set no blocking
 
-#endif
+
 
   // Optionally set alternative url to html device driver
   //nmc.nabtoMainSetup.url = "https://dl.dropbox.com/u/15998645/html_dd_demo.zip";
