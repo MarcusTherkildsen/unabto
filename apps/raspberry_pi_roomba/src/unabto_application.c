@@ -94,15 +94,45 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
   theLight = onOff;
   NABTO_LOG_INFO((theLight?("Nabto: Light turned ON!"):("Nabto: Light turned OFF!")));
 
-#ifdef __arm__
+  int fd = 3;
   // Toggle ACT LED on Raspberry Pi
   if (theLight) {
-    system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py clean &");
+    //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py clean &");
+
+    // Wake Roomba
+    setRTS(fd, 0);
+    sleep(0.1);
+    setRTS(fd, 1);
+    sleep(2);
+
+    // The trick is to send char arrays
+    
+    // Put into safe mode
+    char safe[] = {128, 131};
+    write(fd, &safe, sizeof(safe));
+    usleep(20*1000); // When changing mode, allow 20 milliseconds
+
+    // Set display to NAb T/O
+    char display[] = {163, 55, 119, 124, 93};
+    write(fd, &display, sizeof(display));
+    usleep ((sizeof(display)+25) * 100);
+
+    // Start clean cycle
+    char clean[] = {135};
+    write(fd, &clean, sizeof(clean));
+    usleep ((sizeof(clean)+25) * 100);
+
+
   }
   else {
-    system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py stop &");
+    //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py stop &");
+  
+    // Stop clean cycle
+    char stop[] = {133};
+    write(fd, &stop, sizeof(stop));
+    usleep ((sizeof(stop)+25) * 100);
   }
-#endif
+
 
   return theLight;
 }

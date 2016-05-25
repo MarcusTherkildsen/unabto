@@ -39,13 +39,6 @@ int main(int argc, char* argv[])
   // Set nabto to default values
   nabto_main_setup* nms = unabto_init_context();
 
-#ifdef __arm__
-
-  system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py initialise&");
-
-#endif
-
-
   /////////////////////// Functions to be ran once on init /////////////////////////
   
   char *portname = "/dev/ttyUSB0";
@@ -53,16 +46,15 @@ int main(int argc, char* argv[])
   int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
   if (fd < 0)
   {
-    printf ("error %d opening %s: %s\n", errno, portname, strerror (errno));
+    NABTO_LOG_INFO(("error %d opening %s: %s\n", errno, portname, strerror (errno)));
     return;
   }
   else{
-    printf("Opening %s: %s\n", portname, strerror (errno));
+    NABTO_LOG_INFO(("Opening %s: %s\n", portname, strerror (errno)));
   }
 
   set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
   set_blocking (fd, 0);                // set no blocking
-
 
 
   // Optionally set alternative url to html device driver
