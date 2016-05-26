@@ -4,7 +4,25 @@
 
 #include "unabto/unabto_app.h"
 #include <stdio.h>
+#include <pthread.h>
 
+#include "c_serial.h"
+
+#include <errno.h>
+#include <termios.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h> //memset
+
+#include <features.h>
+
+#include <fcntl.h>
+ 
+/* Not technically required, but needed on some UNIX distributions */
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <sys/ioctl.h>
 
 // Function prototypes
 uint8_t setLight(uint8_t id, uint8_t onOff);
@@ -22,6 +40,9 @@ void *print_message_function( void *ptr );
 
 // sendOrder prototype
 void* sendOrder(void *arg);
+
+// 
+//bool application_init(void);
 
 /***************** The uNabto application logic *****************
  * This is where the user implements his/her own functionality
@@ -110,7 +131,7 @@ void* sendOrder(void *arg)
 
     // Wake Roomba
     setRTS(fd, 0);
-    sleep(0.1);
+    usleep(100000); //0.1 sec
     setRTS(fd, 1);
     sleep(2);
 
@@ -172,6 +193,30 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
 // only using ID #1 in this simple example
 uint8_t readLight(uint8_t id) {
   return theLight;
+}
+
+// Initialise serial cable
+
+bool application_init(void)
+{
+
+  char *portname = "/dev/ttyUSB0";
+
+  int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+  if (fd < 0)
+  {
+    NABTO_LOG_INFO(("error %d opening %s: %s\n", errno, portname, strerror (errno)));
+    return 0;
+  }
+  else{
+    NABTO_LOG_INFO(("Opening %s: %s\n", portname, strerror (errno)));
+  }
+
+  set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+  set_blocking (fd, 0);                // set no blocking
+  NABTO_LOG_INFO(("fd: %d" , fd));
+
+  return 1;
 }
 
 /** Asynchronous event model - queue the request for later response */
