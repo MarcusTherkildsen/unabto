@@ -41,8 +41,9 @@ void *print_message_function( void *ptr );
 // sendOrder prototype
 void* sendOrder(void *arg);
 
-// 
-//bool application_init(void);
+// serial socket
+//static int fd;
+int fd = 0;
 
 /***************** The uNabto application logic *****************
  * This is where the user implements his/her own functionality
@@ -77,6 +78,8 @@ application_event_result demo_application(application_request* request, buffer_r
         NABTO_LOG_ERROR(("Can't read light_state, the buffer is too small"));
         return AER_REQ_TOO_SMALL;
       }
+
+      NABTO_LOG_INFO(("fd should now be defined by the initialise call: %d" , fd));
 
       // Set light according to request
       light_state = setLight(light_id, light_on);
@@ -126,8 +129,7 @@ void* sendOrder(void *arg)
     printf("Now running thread\n");
 
     // Get the passed item/integer
-    int fd = *((int *) arg);
-
+    fd = *((int *) arg);
 
     // Wake Roomba
     setRTS(fd, 0);
@@ -162,23 +164,29 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
   theLight = onOff;
   NABTO_LOG_INFO((theLight?("Nabto: Light turned ON!"):("Nabto: Light turned OFF!")));
 
-  int fd = 3;
   // Toggle ACT LED on Raspberry Pi
   if (theLight) {
-    //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py clean &");
 
-    
     // Preparing the integer to pass to the thread
     int *theOrder = malloc(sizeof(*theOrder));
     *theOrder = fd;
 
     // Send order according to beverage_id
     iret1 = pthread_create( &thread1, NULL, &sendOrder, theOrder);
+    if(iret1)
+    {
+      // Something went wrong with the thread
+      NABTO_LOG_INFO(("Good old error!\n"));
+    }
+    else
+    {
+        // Succesfully sent the command to the thread. 
+      NABTO_LOG_INFO(("Success!\n"));
+    }
 
   }
   else {
-    //system("python /home/pi/unabto/apps/raspberry_pi_roomba/roomba_helper.py stop &");
-  
+
     // Stop clean cycle
     char stop[] = {133};
     write(fd, &stop, sizeof(stop));
@@ -196,13 +204,12 @@ uint8_t readLight(uint8_t id) {
 }
 
 // Initialise serial cable
-
 bool application_init(void)
 {
 
   char *portname = "/dev/ttyUSB0";
 
-  int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+  fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
   if (fd < 0)
   {
     NABTO_LOG_INFO(("error %d opening %s: %s\n", errno, portname, strerror (errno)));
