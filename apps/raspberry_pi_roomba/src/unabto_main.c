@@ -11,7 +11,7 @@
 #include <sched.h> // sched_yield
 
 #include "c_serial.h"
-
+ 
 void nabto_yield(int msec);
 
 /**
@@ -21,47 +21,47 @@ void nabto_yield(int msec);
 int main(int argc, char* argv[])
 {
 
-  // Set nabto to default values
-  nabto_main_setup* nms = unabto_init_context();
+    // Set nabto to default values
+    nabto_main_setup* nms = unabto_init_context();
 
-  // Initialise application
-  application_init();
+    // Initialise application
+    application_init();
 
-  // Optionally set alternative url to html device driver
-  //nmc.nabtoMainSetup.url = "https://dl.dropbox.com/u/15998645/html_dd_demo.zip";
+    // Optionally set alternative url to html device driver
+    //nmc.nabtoMainSetup.url = "https://dl.dropbox.com/u/15998645/html_dd_demo.zip";
 
-  // Overwrite default values with command line args
-  if (!check_args(argc, argv, nms)) {
-    return 1;
-  }
-  NABTO_LOG_INFO(("Identity: '%s'", nms->id));
-  NABTO_LOG_INFO(("Program Release %" PRIu32 ".%" PRIu32, RELEASE_MAJOR, RELEASE_MINOR));
-  NABTO_LOG_INFO(("Buffer size: %d" , nms->bufsize));
+    // Overwrite default values with command line args
+    if (!check_args(argc, argv, nms)) {
+        return 1;
+    }
+    NABTO_LOG_INFO(("Identity: '%s'", nms->id));
+    NABTO_LOG_INFO(("Program Release %" PRIu32 ".%" PRIu32, RELEASE_MAJOR, RELEASE_MINOR));
+    NABTO_LOG_INFO(("Buffer size: %d" , nms->bufsize));
 
-  // Initialize nabto
-  if (!unabto_init()) {
-    NABTO_LOG_FATAL(("Failed at nabto_main_init"));
-  }
+    // Initialize nabto
+    if (!unabto_init()) {
+        NABTO_LOG_FATAL(("Failed at nabto_main_init"));
+    }
 
-  // The main loop gives nabto a tick from time to time.
-  // Everything else is taken care of behind the scenes.
-  while (true) {
-    unabto_tick();
-    nabto_yield(10);
-  }
+    // The main loop gives nabto a tick from time to time.
+    // Everything else is taken care of behind the scenes.
+    while (true) {
+        unabto_tick();
+        nabto_yield(10);
+    }
 
-  unabto_close();
+    unabto_close();
 
-  return 0;
+    return 0;
 }
 
 void nabto_yield(int msec)
 {
 #ifdef WIN32
-  Sleep(msec);
+    Sleep(msec);
 #elif defined(__MACH__)
-  if (msec) usleep(1000*msec);
+    if (msec) usleep(1000*msec);
 #else
-  if (msec) usleep(1000*msec); else sched_yield();
+    if (msec) usleep(1000*msec); else sched_yield();
 #endif
 }
