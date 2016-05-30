@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+  <title>uNabto Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <link rel="stylesheet" href="libs/jquery.mobile-1.4.2.min.css"/>
+  <link rel="stylesheet" href="libs/style.css"/>
+  <script src="libs/jquery-1.11.0.min.js"></script>
+  <script src="libs/defaults.js"></script>
+  <script src="libs/jquery.mobile-1.4.2.min.js"></script>
+  <script src="libs/nabto.js"></script>
+  <!-- Custom Application -->
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="js/app.js"></script>
+
+</head>
+<body>
+  <div data-role="page">
+    <div data-role="header">
+      <a data-role="button" id="discover-button" href="//self/discover" data-icon="home" data-iconpos="notext">Discover</a>
+      <h1>uNabto Roomba remote control</h1>
+    </div>
+    <div data-role="content">
+      <div id="container">
+        <img alt="house" id="house" src="img/full_roomba_tilt_scaled.jpg" width ="50%"/> <!-- width = "50%"/>-->
+        <!--<img alt="house" id="house" src="img/full_roomba_tilt.jpg" width="40%"/>-->
+        <!--<div id="light-div-off"><div id="light-div-on"></div></div>-->
+      </div>
+      <ul data-role="listview" data-inset="true">
+        <li data-role="list-divider">
+          <h1>Remote control input field:</h1>
+        </li>
+        <li>
+          
+          <!--Input field for controlling the Roomba remotely-->
+          <input type="text" id="test">
+
+        </li>
+      </ul>
+      <h4>Welcome to the uNabto Roomba remote control. This is a basic demonstration of the uNabto framework.</h4>
+      <h4>The available commands are: W (forward), S (reverse), A (rotate counterclockwise), D (rotate clockwise), K (Play DSB), L (Play Dixie Horn) and P (wake up Roomba).</h4>
+
+    </div>
+    <div class="errors ui-body"></div>
+  
+  </div>
+
+</body>
+</html>

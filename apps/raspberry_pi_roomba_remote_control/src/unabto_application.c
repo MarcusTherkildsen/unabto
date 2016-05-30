@@ -281,9 +281,9 @@ bool application_init(void)
     write(fd, &reverse, sizeof(reverse));
     usleep ((sizeof(reverse)+25) * 100);
 
-    char car_low[] = {140, 2, 12, 74,10, 71,10, 67,10, 67,10, 67,10, 69,10, 71,10, 72,10, 74,10, 74,10, 74,10, 71,10};
-    write(fd, &car_low, sizeof(car_low));
-    usleep ((sizeof(car_low)+25) * 100);
+    //char car_low[] = {140, 2, 12, 74,10, 71,10, 67,10, 67,10, 67,10, 69,10, 71,10, 72,10, 74,10, 74,10, 74,10, 71,10};
+    //write(fd, &car_low, sizeof(car_low));
+    //usleep ((sizeof(car_low)+25) * 100);
 
     char car_high[] = {140, 3, 12, 86,10, 83,10, 79,10, 79,10, 79,10, 81,10, 83,10, 84,10, 86,10, 86,10, 86,10, 83,10};
     write(fd, &car_high, sizeof(car_high));
