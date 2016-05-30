@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     // Set nabto to default values
     nabto_main_setup* nms = unabto_init_context();
 
+
     // Initialise application
     if (!application_init()){
         NABTO_LOG_FATAL(("Unable to initialise serial connection"));

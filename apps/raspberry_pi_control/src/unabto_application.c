@@ -128,30 +128,43 @@ void* sendOrder(void *arg)
     // Get the passed item/integer
     fd = *((int *) arg);
 
+    // Depending on the input, our Roomba should perform different tasks
+    // we really should write a small WORKING function for writing to the serial port. 
+    // like, write_serial(fd, (132, 132, 432, 432)) der så selv finder ud af hvor langt tid der skal ventes osv. 
+    // hmm, until then, we do it like this. 
+    // We implement the W, A, S, D scheme, Tested in Python first
+
+    // If w pressed down -> drive straight
+    char w[] = {137, 0, 20, 128, 0};
+    write(fd, &w, sizeof(w));
+    usleep ((sizeof(w)+25) * 100);
+
+
+
     // This is the clean cycle task
 
-    // Wake Roomba
-    setRTS(fd, 0);
-    usleep(100000); //0.1 sec
-    setRTS(fd, 1);
-    sleep(2);
+        // Wake Roomba
+        setRTS(fd, 0);
+        usleep(100000); //0.1 sec
+        setRTS(fd, 1);
+        sleep(2);
 
-    // The trick is to send char arrays
+        // The trick is to send char arrays
 
-    // Put into safe mode
-    char safe[] = {128, 131};
-    write(fd, &safe, sizeof(safe));
-    usleep(20*1000); // When changing mode, allow 20 milliseconds
+        // Put into safe mode
+        char safe[] = {128, 131};
+        write(fd, &safe, sizeof(safe));
+        usleep(20*1000); // When changing mode, allow 20 milliseconds
 
-    // Set display to NAb T/O
-    char display[] = {163, 55, 119, 124, 93};
-    write(fd, &display, sizeof(display));
-    usleep ((sizeof(display)+25) * 100);
+        // Set display to NAb T/O
+        char display[] = {163, 55, 119, 124, 93};
+        write(fd, &display, sizeof(display));
+        usleep ((sizeof(display)+25) * 100);
 
-    // Start clean cycle
-    char clean[] = {135};
-    write(fd, &clean, sizeof(clean));
-    usleep ((sizeof(clean)+25) * 100);
+        // Start clean cycle
+        char clean[] = {135};
+        write(fd, &clean, sizeof(clean));
+        usleep ((sizeof(clean)+25) * 100);
 
 
     return NULL;
@@ -161,10 +174,9 @@ void* sendOrder(void *arg)
 // only using ID #1 in this simple example
 uint8_t setLight(uint8_t id, uint8_t onOff) {
     theLight = onOff;
-    NABTO_LOG_INFO((theLight?("Nabto: Light turned ON!"):("Nabto: Light turned OFF!")));
+    //NABTO_LOG_INFO((theLight?("Nabto: Light turned ON!"):("Nabto: Light turned OFF!")));
 
-    // Toggle ACT LED on Raspberry Pi
-    if (theLight) {
+/*
 
         // Preparing the integer to pass to the thread
         int *theOrder = malloc(sizeof(*theOrder));
@@ -182,16 +194,63 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
             // Succesfully sent the command to the thread. 
             NABTO_LOG_INFO(("Success!\n"));
         }
+*/
 
+    NABTO_LOG_INFO(("Key pressed%d, onOff%d\n", id, onOff));
+
+    // W - drive straight
+    if (id == 87)
+    {
+        //char w[] = {137, 0, 100, 128, 0}; // char w[] = {137, 0, 50, 128, 0};
+        char w[] = {137, 0, 255, 128, 0};
+        write(fd, &w, sizeof(w));
+        usleep ((sizeof(w)+25) * 100);      
     }
-    else {
+    // S
+    else if (id == 83){
 
-    // Stop clean cycle
-    char stop[] = {133};
-    write(fd, &stop, sizeof(stop));
-    usleep ((sizeof(stop)+25) * 100);
+        // Play reverse sound
+        char reverse[] = {141, 1};
+        write(fd, &reverse, sizeof(reverse));
+        usleep ((sizeof(reverse)+25) * 100);
+
+        //char s[] = {137, 255, 155, 128, 0}; // char s[] = {137, 255, 235, 128, 0};
+        char s[] = {137, 255, 0, 128, 0};
+        write(fd, &s, sizeof(s));
+        usleep ((sizeof(s)+25) * 100); 
     }
-
+    // A
+    else if (id == 65){
+        //char a[] = {137, 0, 100, 0, 1};
+        char a[] = {137, 0, 255, 0, 1};
+        write(fd, &a, sizeof(a));
+        usleep ((sizeof(a)+25) * 100); 
+    }
+    // D
+    else if (id == 68){
+        //char d[] = {137, 0, 100, 255, 255};
+        char d[] = {137, 0, 255, 255, 255};
+        write(fd, &d, sizeof(d));
+        usleep ((sizeof(d)+25) * 100); 
+    }
+    // K - DSB
+    else if(id == 75){
+        char DSB[] = {141, 0};
+        write(fd, &DSB, sizeof(DSB));
+        usleep ((sizeof(DSB)+25) * 100);
+    }
+    // L - March Kwai
+    else if(id == 76){
+        char MARCH[] = {141, 3};
+        write(fd, &MARCH, sizeof(MARCH));
+        usleep ((sizeof(MARCH)+25) * 100);
+    }
+    // Stop driving if any other key is pressed
+    else{
+        char stop_driving[] = {137, 0, 0, 0, 0};
+        write(fd, &stop_driving, sizeof(stop_driving));
+        usleep ((sizeof(stop_driving)+25) * 100); 
+    }
 
     return theLight;
 }
@@ -243,6 +302,16 @@ bool application_init(void)
     char car_high[] = {140, 3, 12, 86,10, 83,10, 79,10, 79,10, 79,10, 81,10, 83,10, 84,10, 86,10, 86,10, 86,10, 83,10};
     write(fd, &car_high, sizeof(car_high));
     usleep ((sizeof(car_high)+25) * 100);
+
+    // Put into safe mode
+    char safe[] = {128, 131};
+    write(fd, &safe, sizeof(safe));
+    usleep(20*1000); // When changing mode, allow 20 milliseconds
+
+    // Set display to NAb T/O
+    char display[] = {163, 55, 119, 124, 93};
+    write(fd, &display, sizeof(display));
+    usleep ((sizeof(display)+25) * 100);
 
     return 1;
 }
