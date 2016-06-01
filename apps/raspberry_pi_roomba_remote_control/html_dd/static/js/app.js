@@ -3,21 +3,27 @@
  */
 
 // Set the light state if no errors are returned
-/*
+
 function setLight(err, data) {
   if (!err) {
-    $("#living-room-status").val(data.light_state?"on":"off").slider("refresh");
-    $("#light-div-on").stop().fadeTo(1000, data.light_state);
+//    $("#living-room-status").val(data.light_state?"on":"off").slider("refresh");
+//    $("#light-div-on").stop().fadeTo(1000, data.light_state);
   }
 }
-*/
-
 
 $(document).on("pageinit", function() {
   // Initialize Nabto JavaScript library
   jNabto.init({
     debug: false
   });
+
+  // Wake Roomba
+  jNabto.request("light_write.json?light_id=80&light_on=" + 1, setLight);
+
+  // Pretend like we will not get a problem here
+
+  // Get sensor data
+  jNabto.request("light_read.json?light_id=1", setLight);
     
   // Update living room status on startup. Should probably also check if Roomba is awake or not
 //  jNabto.request("light_read.json?light_id=1", setLight);

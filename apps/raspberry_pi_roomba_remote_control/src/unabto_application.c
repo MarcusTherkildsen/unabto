@@ -146,12 +146,6 @@ void* sendOrder(void *arg)
     write(fd, &display, sizeof(display));
     usleep ((sizeof(display)+25) * 100);
 
-    // Start clean cycle
-    //char clean[] = {135};
-    //write(fd, &clean, sizeof(clean));
-    //usleep ((sizeof(clean)+25) * 100);
-
-
     return NULL;
 }
 
@@ -168,7 +162,10 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
     if (id == 87)
     {
         //char w[] = {137, 0, 100, 128, 0}; // char w[] = {137, 0, 50, 128, 0};
-        char w[] = {137, 0, 255, 128, 0};
+        //char w[] = {137, 0, 255, 128, 0};
+
+        // 500 mm/s
+        char w[] = {137, 1, 244, 128, 0};
         write(fd, &w, sizeof(w));
         usleep ((sizeof(w)+25) * 100);      
     }
@@ -181,7 +178,9 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
         usleep ((sizeof(reverse)+25) * 100);
 
         //char s[] = {137, 255, 155, 128, 0}; // char s[] = {137, 255, 235, 128, 0};
-        char s[] = {137, 255, 0, 128, 0};
+        //char s[] = {137, 255, 0, 128, 0};
+        // -500 mm/s
+        char s[] = {137, 254, 12, 128, 0};
         write(fd, &s, sizeof(s));
         usleep ((sizeof(s)+25) * 100); 
     }
@@ -211,7 +210,7 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
         write(fd, &MARCH, sizeof(MARCH));
         usleep ((sizeof(MARCH)+25) * 100);
     }
-    // Wake up Roomba by pressing P
+    // Wake up Roomba by pressing P or on page init
     else if(id == 80)
     {
         // Preparing the integer to pass to the thread
@@ -244,6 +243,41 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
 // Return virtual light state,
 // only using ID #1 in this simple example
 uint8_t readLight(uint8_t id) {
+
+
+
+    // Get all sensor data
+    uint8_t cmd[] = { 149, 4, 24, 25, 26, 34 };          
+    int n = write( fd, cmd, sizeof(cmd));
+    usleep ((sizeof(cmd)+25) * 100);
+    
+    sleep(1);
+
+    uint8_t sb[6];
+    n = read( fd, sb, 6);
+    if( n!=6 ) {
+        NABTO_LOG_INFO((stderr,"roomba_read_sensors: not enough read (n=%d)\n",n));
+        return -1;
+    }
+
+    int i;
+    for(i=0;i<6;i++) {
+        printf("%.2hhx ",sb[i]);
+    }
+
+    printf("\n\n");
+
+
+    // Print charging state, temp and battery level
+    NABTO_LOG_INFO(("Charging state: %d\n", sb[5]));
+    NABTO_LOG_INFO(("Battery temperature: %d° Celsius\n",    sb[0]));
+    NABTO_LOG_INFO(("Battery level: %.0f %% \n", (double) 100*((sb[1]<<8) | sb[2] )/ ((sb[3]<<8) | sb[4])));
+
+
+    theLight = sb[5];
+
+
+
     return theLight;
 }
 
