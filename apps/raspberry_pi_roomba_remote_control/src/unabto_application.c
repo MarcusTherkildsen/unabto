@@ -26,7 +26,9 @@
 
 // Function prototypes
 uint8_t setLight(uint8_t id, uint8_t onOff);
-uint8_t readLight(uint8_t id);
+
+uint8_t sb[6];
+void readLight(uint8_t id);
 
 // The virtual light bulb variable
 static uint8_t theLight = 0;
@@ -93,8 +95,10 @@ application_event_result demo_application(application_request* request, buffer_r
             //    <request>
             //      <parameter name="light_id" type="uint8"/>
             //    </request>
-            //    <response>
-            //      <parameter name="light_state" type="uint8"/>
+            //    <response format="json">
+            //      <parameter name="bat_temp" type="uint8"/>
+            //      <parameter name="bat_level" type="uint8"/>
+            //      <parameter name="charging_state" type="uint8"/>
             //    </response>
             //  </query>
 
@@ -104,11 +108,40 @@ application_event_result demo_application(application_request* request, buffer_r
             // Read parameters in request
             if (!buffer_read_uint8(read_buffer, &light_id)) return AER_REQ_TOO_SMALL;
 
-            // Read light state
-            light_state = readLight(light_id);
+            // Bliver læst korrekt
 
-            // Write back led state
-            if (!buffer_write_uint8(write_buffer, light_state)) return AER_REQ_RSP_TOO_LARGE;
+            uint8_t bat_level;
+
+            // Get sensor data
+            readLight(1);
+
+            // Charge/capa = level
+            bat_level = (uint8_t) 100*( (float)   ( ((sb[1]<<8) | sb[2]) )    /  (float)  ( ((sb[3]<<8) | sb[4]) )   );
+
+            // Write sensor data
+            /*
+            int i;
+            for(i=0;i<6;i++) {
+                printf("%.2hhx ",sb[i]);
+            }
+
+            printf("\n\n");
+            */
+
+            // Print battery temp, battery level and charging state
+            NABTO_LOG_INFO(("bat_temp %d\n", sb[0]));
+            NABTO_LOG_INFO(("bat_level %d\n", bat_level));
+            NABTO_LOG_INFO(("charging_state %d\n", sb[5]));
+
+
+            // Battery temperature
+            if (!buffer_write_uint8(write_buffer, sb[0])) return AER_REQ_RSP_TOO_LARGE;
+            
+            // Battery level
+            if (!buffer_write_uint8(write_buffer, bat_level)) return AER_REQ_RSP_TOO_LARGE;
+
+            // Charging state
+            if (!buffer_write_uint8(write_buffer, sb[5])) return AER_REQ_RSP_TOO_LARGE;
 
             return AER_REQ_RESPONSE_READY;
         }
@@ -123,7 +156,7 @@ void* sendOrder(void *arg)
     // Set thread to be detachable such that it will release resources when finished.
     pthread_detach(pthread_self());
 
-    printf("Now running thread\n");
+    //printf("Now running thread\n");
 
     // Get the passed item/integer
     fd = *((int *) arg);
@@ -156,7 +189,7 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
     //NABTO_LOG_INFO((theLight?("Nabto: Light turned ON!"):("Nabto: Light turned OFF!")));
 
 
-    NABTO_LOG_INFO(("Key pressed%d, onOff%d\n", id, onOff));
+    //NABTO_LOG_INFO(("Key pressed%d, onOff%d\n", id, onOff));
 
     // W - drive straight
     if (id == 87)
@@ -210,7 +243,14 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
         write(fd, &MARCH, sizeof(MARCH));
         usleep ((sizeof(MARCH)+25) * 100);
     }
-    // Wake up Roomba by pressing P or on page init
+    // Power off Roomba by pressing O (the letter)
+    else if(id == 79){
+        // Stop clean cycle
+        char stop[] = {133};
+        write(fd, &stop, sizeof(stop));
+        usleep ((sizeof(stop)+25) * 100);
+    }
+    // Power on Roomba by pressing P or on page init
     else if(id == 80)
     {
         // Preparing the integer to pass to the thread
@@ -222,12 +262,12 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
         if(iret1)
         {
             // Something went wrong with the thread
-            NABTO_LOG_INFO(("Good old error!\n"));
+            //NABTO_LOG_INFO(("Good old error!\n"));
         }
         else
         {
             // Succesfully sent the command to the thread. 
-            NABTO_LOG_INFO(("Success!\n"));
+            //NABTO_LOG_INFO(("Success!\n"));
         }
     }
     // Stop driving if any other key is pressed
@@ -242,8 +282,7 @@ uint8_t setLight(uint8_t id, uint8_t onOff) {
 
 // Return virtual light state,
 // only using ID #1 in this simple example
-uint8_t readLight(uint8_t id) {
-
+void readLight(uint8_t id) {
 
 
     // Get all sensor data
@@ -253,11 +292,11 @@ uint8_t readLight(uint8_t id) {
     
     sleep(1);
 
-    uint8_t sb[6];
+    
     n = read( fd, sb, 6);
     if( n!=6 ) {
-        NABTO_LOG_INFO((stderr,"roomba_read_sensors: not enough read (n=%d)\n",n));
-        return -1;
+        fprintf(stderr,"roomba_read_sensors: not enough read (n=%d)\n",n);
+        //return -1;
     }
 
     int i;
@@ -269,16 +308,14 @@ uint8_t readLight(uint8_t id) {
 
 
     // Print charging state, temp and battery level
+    /*
     NABTO_LOG_INFO(("Charging state: %d\n", sb[5]));
     NABTO_LOG_INFO(("Battery temperature: %d° Celsius\n",    sb[0]));
     NABTO_LOG_INFO(("Battery level: %.0f %% \n", (double) 100*((sb[1]<<8) | sb[2] )/ ((sb[3]<<8) | sb[4])));
 
-
-    theLight = sb[5];
-
-
-
-    return theLight;
+    printf("charge in the function %d\n", (sb[1]<<8) | sb[2] );
+    printf("capa in the function %d\n", ((sb[3]<<8) | sb[4]));
+    */
 }
 
 // Initialise serial cable and run one time setup

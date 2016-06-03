@@ -28,7 +28,16 @@
         <!--<img alt="house" id="house" src="img/full_roomba_tilt.jpg" width="40%"/>-->
         <!--<div id="light-div-off"><div id="light-div-on"></div></div>-->
       </div>
+
       <ul data-role="listview" data-inset="true">
+        
+        <li data-role="list-divider">
+          <h2>Data from Roomba</h2>
+        </li>
+        <li>
+          <input type="button" id="roomba_sensor_button" data-icon="refresh" value="Read charging state, battery temp and battery level"/>
+        </li>
+
         <li data-role="list-divider">
           <h1>Remote control input field:</h1>
         </li>
@@ -40,7 +49,7 @@
         </li>
       </ul>
       <h4>Welcome to the uNabto Roomba remote control. This is a basic demonstration of the uNabto framework.</h4>
-      <h4>The available commands are: W (forward), S (reverse), A (rotate counterclockwise), D (rotate clockwise), K (Play DSB), L (Play Dixie Horn) and P (wake up Roomba).</h4>
+      <h4>The available commands are: W (forward), S (reverse), A (rotate counterclockwise), D (rotate clockwise), K (Play DSB), L (Play Dixie Horn), P (Power on Roomba) and O (Power off Roomba).</h4>
 
     </div>
     <div class="errors ui-body"></div>

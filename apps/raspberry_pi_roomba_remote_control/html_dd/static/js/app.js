@@ -11,6 +11,36 @@ function setLight(err, data) {
   }
 }
 
+function roomba_sensors(input) {
+  jNabto.request("light_read.json?light_id=1", function(err, data) {
+    if (!err) {
+
+      /*
+      Should return
+      data.charging_state
+      data.bat_temp
+      data.bat_level
+
+      all interpreted as uint8_t (although temp actually is signed, but the battery will never reach minus degrees)
+      
+      alert(data.bat_temp);
+      alert(data.bat_level);
+      alert(data.charging_state);
+      */
+      
+      if (data.charging_state==1){
+
+        cs="Charging"
+      }
+      else{
+        cs="Not charging"
+      }
+
+      input.val("Charging state: " + cs + ", battery level: " + data.bat_level + " %, battery temperature: " + data.bat_temp + "°C").button("refresh");    
+    }
+  });
+}
+
 $(document).on("pageinit", function() {
   // Initialize Nabto JavaScript library
   jNabto.init({
@@ -23,19 +53,11 @@ $(document).on("pageinit", function() {
   // Pretend like we will not get a problem here
 
   // Get sensor data
-  jNabto.request("light_read.json?light_id=1", setLight);
-    
-  // Update living room status on startup. Should probably also check if Roomba is awake or not
-//  jNabto.request("light_read.json?light_id=1", setLight);
-
-/*  
-  // Bind change event to living room switch
-  $("#living-room-status").change(function() {
-    var state = $(this).val() === "off"?0:1;
-    //jNabto.request("light_write.json?light_id=1&light_on=" + state, setLight);
+  $("#roomba_sensor_button").click(function() {
+    roomba_sensors($(this));
   });
-*/
 
+  // Prepare text field
   var test = document.getElementById('test');
 
   test.onkeydown = function(evt) {
